@@ -181,6 +181,23 @@ class SymbolIndex(object):
         scores = []
         path = []
 
+        # sys.path              sys path          ->    import sys
+        # os.path.basename      os.path basename  ->    import os.path
+        # basename              os.path basename   ->   from os.path import basename
+        # path.basename         os.path basename   ->   from os import path
+        def fixup(module, variable):
+            if variable is None:
+                return module, variable
+
+            prefix = module.split('.')
+            if variable is not None:
+                prefix.append(variable)
+            seeking = symbol.split('.')
+            module = []
+            while prefix and seeking[0] != prefix[0]:
+                module.append(prefix.pop(0))
+            return '.'.join(module), prefix[0]
+
         def score_walk(scope, scale):
             sub_path, score = self._score_key(scope, full_key)
             if score > 0.1:
@@ -190,6 +207,7 @@ class SymbolIndex(object):
                 except ValueError:
                     from_symbol = None
                 package_path = '.'.join(path + sub_path)
+                package_path, from_symbol = fixup(package_path, from_symbol)
                 scores.append((score * scale, package_path, from_symbol))
 
             for key, subscope in scope._tree.items():
@@ -271,8 +289,10 @@ class SymbolIndex(object):
             for key in set(tree._tree) - set(tree._exports):
                 del tree._tree[key]
 
-    def serialize(self):
-        return json.dumps(self, cls=JSONEncoder)
+    def serialize(self, fd=None):
+        if fd is None:
+            return json.dumps(self, cls=JSONEncoder)
+        return json.dump(self, fd, cls=JSONEncoder)
 
     def boost(self):
         return LOCATION_BOOSTS.get(self.location, 1.0)
@@ -355,4 +375,4 @@ if __name__ == '__main__':
     # print ast.dump(ast.parse(open('pyautoimp.py').read(), 'pyautoimp.py'))
     tree = SymbolIndex()
     tree.build_index(sys.path)
-    sys.stdout.write(tree.serialize())
+    tree.serialize(sys.stdout)

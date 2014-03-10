@@ -271,21 +271,13 @@ def _process_imports(src, index, unresolved, unreferenced):
         _, module, variable = scores[0]
         # Direct module import: eg. os.path
         if variable is None:
+            # sys.path              sys path          ->    import sys
+            # os.path.basename      os.path basename  ->    import os.path
             imports.add_import(module)
         else:
-            if symbol.startswith(module):
-                # sys.path              sys path          ->    import sys
-                # os.path.basename      os.path basename  ->    import os.path
-                imports.add_import(module)
-            else:
-                prefix = module.split('.') + [variable]
-                seeking = symbol.split('.')
-                module = []
-                # basename              os.path basename   ->   from os.path import basename
-                # path.basename         os.path basename   ->   from os import path
-                while prefix and seeking[0] != prefix[0]:
-                    module.append(prefix.pop(0))
-                imports.add_import_from('.'.join(module), prefix[0])
+            # basename              os.path basename   ->   from os.path import basename
+            # path.basename         os.path basename   ->   from os import path
+            imports.add_import_from(module, variable)
     return imports
 
 
