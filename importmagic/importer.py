@@ -1,8 +1,9 @@
 """Imports new symbols."""
 
 import tokenize
-from six import StringIO
 from collections import defaultdict
+
+from importmagic.six import StringIO
 
 
 class Iterator(object):
@@ -193,7 +194,7 @@ class Imports(object):
                 size += 1
                 while it:
                     token = it.peek()
-                    if token[0] == tokenize.NEWLINE:
+                    if token[0] == tokenize.NEWLINE or token[1] == ';':
                         break
                     index, _ = it.next()
 

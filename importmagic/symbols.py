@@ -5,7 +5,7 @@ import sys
 from contextlib import contextmanager
 from itertools import chain
 
-from six import string_types
+from importmagic.six import string_types
 
 
 try:

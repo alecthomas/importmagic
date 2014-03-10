@@ -205,8 +205,7 @@ def test_importer_wrapping(index):
 
 def test_importer_directives(index):
     src = dedent('''
-        from gevent.monkey import patch_all
-        patch_all()
+        from gevent.monkey import patch_all; patch_all()
 
         # importmagic: manage
         import re
@@ -215,8 +214,7 @@ def test_importer_directives(index):
         print(os.path.basename('moo'))
         ''').strip()
     expected_src = dedent('''
-        from gevent.monkey import patch_all
-        patch_all()
+        from gevent.monkey import patch_all; patch_all()
 
         # importmagic: manage
         import os.path
