@@ -6,6 +6,13 @@ The goal of this package is to be able to automatically manage imports in Python
 - Find unresolved references in source, and resolve them against the index, effectively automating imports.
 - Automatically arrange imports according to PEP8.
 
+It was originally written for the Sublime Text 2 [Python Import Magic](https://github.com/alecthomas/SublimePythonImportMagic) plugin.
+
+## Example of use in Sublime Text 2 plugin
+
+![Example of Import Magic at work](importmagic.gif)
+
+
 ## Using the library
 
 Build an index:
