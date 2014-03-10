@@ -186,9 +186,6 @@ class SymbolIndex(object):
         # basename              os.path basename   ->   from os.path import basename
         # path.basename         os.path basename   ->   from os import path
         def fixup(module, variable):
-            if variable is None:
-                return module, variable
-
             prefix = module.split('.')
             if variable is not None:
                 prefix.append(variable)
@@ -196,7 +193,11 @@ class SymbolIndex(object):
             module = []
             while prefix and seeking[0] != prefix[0]:
                 module.append(prefix.pop(0))
-            return '.'.join(module), prefix[0]
+            module, variable = '.'.join(module), prefix[0]
+            # os -> '', 'os'
+            if not module:
+                module, variable = variable, None
+            return module, variable
 
         def score_walk(scope, scale):
             sub_path, score = self._score_key(scope, full_key)
