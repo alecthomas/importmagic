@@ -7,6 +7,7 @@ from importmagic.six import StringIO
 
 
 class Iterator(object):
+
     def __init__(self, tokens, start=None, end=None):
         self._tokens = tokens
         self._cursor = start or 0
@@ -41,6 +42,7 @@ class Iterator(object):
 
 
 class Import(object):
+
     def __init__(self, location, name, alias):
         self.location = location
         self.name = name
@@ -54,15 +56,18 @@ class Import(object):
         return hash((self.location, self.name, self.alias))
 
     def __eq__(self, other):
-        return self.location == other.location and self.name == other.name and self.alias == other.alias
+        return (self.location == other.location
+                and self.name == other.name and self.alias == other.alias)
 
     def __ne__(self, other):
-        return self.location != other.location or self.name != other.name or self.alias != other.alias
+        return (self.location != other.location
+                or self.name != other.name or self.alias != other.alias)
 
     def __lt__(self, other):
         return self.location < other.location \
             or self.name < other.name \
-            or (self.alias is not None and other.alias is not None and self.alias < other.alias)
+            or (self.alias is not None
+                and other.alias is not None and self.alias < other.alias)
 
 
 # See SymbolIndex.LOCATIONS for details.
@@ -70,6 +75,7 @@ LOCATION_ORDER = 'FS3L'
 
 
 class Imports(object):
+
     def __init__(self, index, source):
         self._imports = set()
         self._imports_from = defaultdict(set)
@@ -104,7 +110,8 @@ class Imports(object):
                     continue
                 out.write('import {module}{alias}\n'.format(
                     module=imp.name,
-                    alias='as {alias}'.format(alias=imp.alias) if imp.alias else '',
+                    alias='as {alias}'.format(
+                        alias=imp.alias) if imp.alias else '',
                 ))
 
             for module, imports in sorted(self._imports_from.items()):
@@ -114,7 +121,8 @@ class Imports(object):
                 line = 'from {module} import '.format(module=module)
                 clauses = ['{name}{alias}'.format(
                            name=i.name,
-                           alias=' as {alias}'.format(alias=i.alias) if i.alias else ''
+                           alias=' as {alias}'.format(
+                               alias=i.alias) if i.alias else ''
                            ) for i in imports]
                 clauses.reverse()
                 while clauses:
@@ -132,7 +140,8 @@ class Imports(object):
                 groups.append(out.getvalue())
 
         start = self._tokens[self._imports_begin][2][0] - 1
-        end = self._tokens[min(len(self._tokens) - 1, self._imports_end)][2][0] - 1
+        end = self._tokens[
+            min(len(self._tokens) - 1, self._imports_end)][2][0] - 1
         if groups:
             text = '\n'.join(groups) + '\n\n'
         else:
@@ -150,7 +159,8 @@ class Imports(object):
         self._tokens = list(tokenize.generate_tokens(reader.readline))
         it = Iterator(self._tokens)
         self._imports_begin, self._imports_end = self._find_import_range(it)
-        it = Iterator(self._tokens, start=self._imports_begin, end=self._imports_end)
+        it = Iterator(
+            self._tokens, start=self._imports_begin, end=self._imports_end)
         self._parse_imports(it)
 
     def _find_import_range(self, it):
@@ -179,9 +189,11 @@ class Imports(object):
             if indentation:
                 continue
 
-            # Explicitly tell importmagic to manage a particular block of imports.
+            # Explicitly tell importmagic to manage a particular block of
+            # imports.
             if token[1] == '# importmagic: manage':
                 explicit = True
+
             elif token[0] in (tokenize.STRING, tokenize.COMMENT):
                 # If a non-import statement follows, stop the range *before*
                 # this string or comment, in order to keep it out of the
@@ -270,7 +282,13 @@ class Imports(object):
                 self.add_import_from(module, name, alias=alias)
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'Imports(imports=%r, imports_from=%r)' % (self._imports, self._imports_from)
+=======
+        return 'Imports(imports={!r}, impots_from={!r}'.format(
+            self.imports, self.imports_from
+        )
+>>>>>>> fixed PEP8 violations
 
 
 def _process_imports(src, index, unresolved, unreferenced):
@@ -287,7 +305,7 @@ def _process_imports(src, index, unresolved, unreferenced):
             # os.path.basename      os.path basename  ->    import os.path
             imports.add_import(module)
         else:
-            # basename              os.path basename   ->   from os.path import basename
+            # basename              os.path basename   ->   from os.path import basename  # noqa
             # path.basename         os.path basename   ->   from os import path
             imports.add_import_from(module, variable)
     return imports

@@ -87,7 +87,8 @@ def test_index_symbol_scores():
 
 
 def test_index_score_deep_unknown_attribute(index):
-    assert index.symbol_scores('os.path.basename.unknown')[0][1:] == ('os.path', None)
+    assert index.symbol_scores('os.path.basename.unknown')[0][1:] == (
+        'os.path', None)
 
 
 def test_index_score_deep_reference(index):
@@ -103,7 +104,8 @@ def test_index_score_sys_path(index):
 
 
 def test_encoding_score(index):
-    assert index.symbol_scores('iso8859_6.Codec')[0][1:] == ('encodings', 'iso8859_6')
+    assert index.symbol_scores('iso8859_6.Codec')[0][1:] == (
+        'encodings', 'iso8859_6')
 
 
 def test_score_boosts_apply_to_scopes(index):

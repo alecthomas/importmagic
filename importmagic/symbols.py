@@ -15,7 +15,6 @@ except:
     import __builtin__
 
 
-
 class _InvalidSymbol(Exception):
     pass
 
@@ -41,7 +40,8 @@ class Scope(object):
 
     @contextmanager
     def start_symbol(self):
-        self._add_symbol.append(self._add_symbol[-1] if self._add_symbol else self.reference)
+        self._add_symbol.append(
+            self._add_symbol[-1] if self._add_symbol else self.reference)
         try:
             yield self
         finally:
@@ -98,7 +98,10 @@ class Scope(object):
 
     @contextmanager
     def enter(self, is_class=False):
-        child = Scope(self._cursor, is_class=is_class, define_builtins=self._define_builtins)
+        child = Scope(
+            self._cursor, is_class=is_class,
+            define_builtins=self._define_builtins
+        )
         self._cursor._children.append(child)
         self._cursors.append(child)
         self._cursor = child
@@ -110,20 +113,26 @@ class Scope(object):
             self._cursor = self._cursors[-1]
 
     def find_unresolved_and_unreferenced_symbols(self):
-        """Find any unresolved symbols, and unreferenced symbols from this scope.
+        """
+        Find any unresolved symbols, and unreferenced symbols from this scope.
 
         :returns: ({unresolved}, {unreferenced})
         """
         unresolved = set()
         unreferenced = self._definitions.copy()
-        self._collect_unresolved_and_unreferenced(set(), set(), unresolved, unreferenced,
-                                                  frozenset(self._definitions), start=True)
+        self._collect_unresolved_and_unreferenced(
+            set(), set(), unresolved, unreferenced,
+            frozenset(self._definitions), start=True
+        )
         return unresolved, unreferenced - Scope.ALL_BUILTINS
 
-    def _collect_unresolved_and_unreferenced(self, definitions, definitions_excluding_top,
-                                             unresolved, unreferenced, top, start=False):
+    def _collect_unresolved_and_unreferenced(
+        self, definitions, definitions_excluding_top,
+            unresolved, unreferenced, top, start=False):
+
         scope_definitions = definitions | self._definitions
-        scope_definitions_excluding_top = definitions_excluding_top | (set() if start else self._definitions)
+        scope_definitions_excluding_top = definitions_excluding_top | (
+            set() if start else self._definitions)
 
         # When we're in a class, don't export definitions to descendant scopes
         if not self._is_class:
@@ -136,18 +145,23 @@ class Scope(object):
             if symbols.isdisjoint(scope_definitions):
                 unresolved.add(reference)
             # Symbol is referenced only in the top level scope.
-            elif not symbols.isdisjoint(top) and symbols.isdisjoint(scope_definitions_excluding_top):
+            elif not symbols.isdisjoint(top) and symbols.isdisjoint(
+                scope_definitions_excluding_top
+            ):
                 unreferenced -= symbols
 
         # Recurse
         for child in self._children:
             child._collect_unresolved_and_unreferenced(
-                definitions, definitions_excluding_top, unresolved, unreferenced, top,
+                definitions, definitions_excluding_top,
+                unresolved, unreferenced, top,
             )
 
     def __repr__(self):
-        return 'Scope(definitions=%r, references=%r, children=%r)' \
-            % (self._definitions - Scope.ALL_BUILTINS, self._references, self._children)
+        return 'Scope(definitions={!r}, references={!r}, children={!r}'.format(
+            self._definitions - Scope.ALL_BUILTINS,
+            self._references, self._children
+        )
 
 
 def _symbol_series(s):
@@ -372,7 +386,9 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
     def visit_Call(self, node):
         with self._scope.start_reference():
             self.visit(node.func)
-        for arg in chain(node.args, node.keywords, filter(None, [node.starargs, node.kwargs])):
+        for arg in chain(node.args, node.keywords, filter(
+            None, [node.starargs, node.kwargs])
+        ):
             with self._scope.start_reference():
                 self.visit(arg)
 
