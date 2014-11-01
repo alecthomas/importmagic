@@ -1,9 +1,10 @@
-"""Imports new symbols."""
+"""Imports new symbols.
+"""
 
 import tokenize
 from collections import defaultdict
 
-from importmagic.six import StringIO
+from importmagic.compat import StringIO
 
 
 class Iterator(object):

@@ -1,13 +1,13 @@
 """Build an index of top-level symbols from Python modules and packages."""
 
-import ast
-import json
-import logging
 import os
 import re
+import ast
 import sys
-from contextlib import contextmanager
+import json
+import logging
 from distutils import sysconfig
+from contextlib import contextmanager
 
 from importmagic.util import parse_ast
 

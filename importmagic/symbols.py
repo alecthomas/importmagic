@@ -5,7 +5,8 @@ import sys
 from contextlib import contextmanager
 from itertools import chain
 
-from importmagic.six import string_types
+
+from importmagic.compat import PY3
 from importmagic.util import parse_ast
 
 
@@ -81,6 +82,7 @@ class Scope(object):
     def from_source(cls, src, trace=False, define_builtins=True):
         scope = Scope(define_builtins=define_builtins)
         visitor = UnknownSymbolVisitor(scope, trace=trace)
+        string_types = str if PY3 else basestring
         if isinstance(src, string_types):
             src = parse_ast(src)
         visitor.visit(src)
