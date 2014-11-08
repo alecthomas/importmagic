@@ -158,7 +158,7 @@ class SymbolIndex(object):
             return
 
         with self.enter(name, location=location) as subtree:
-            for key, value in vars(module).iteritems():
+            for key, value in vars(module).items():
                 if not key.startswith('_'):
                     subtree.add(key, 1.1)
 

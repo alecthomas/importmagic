@@ -200,7 +200,11 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
         with self._scope.start_reference():
             self.visit(node.type)
         with self._scope.start_definition():
-            self.visit(node.name)
+            if isinstance(node.name, str):
+                # Python 3
+                self._scope.extend_symbol(node.name)
+            else:
+                self.visit(node.name)
         for n in node.body:
             with self._scope.start_reference():
                 self.visit(n)
