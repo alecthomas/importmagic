@@ -299,7 +299,7 @@ class SymbolIndex(object):
         return LOCATION_BOOSTS.get(self.location, 1.0)
 
     def __repr__(self):
-        return repr(self._tree)
+        return '<%s:%r %r>' % (self.location, self.score, self._tree)
 
     def _merge_aliases(self):
         def create(node, alias, score):
