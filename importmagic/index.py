@@ -19,7 +19,7 @@ LIB_LOCATIONS = sorted(set((
 
 
 # Regex matching modules that we never attempt to index.
-BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
+DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
 # Modules to treat as built-in.
 #
 # "os" is here mostly because it imports a whole bunch of aliases from other
@@ -66,11 +66,18 @@ class SymbolIndex(object):
     _PACKAGE_ALIASES = dict((v[0], (k, v[1])) for k, v in PACKAGE_ALIASES.items())
     _SERIALIZED_ATTRIBUTES = {'score': 1.0, 'location': '3'}
 
-    def __init__(self, name=None, parent=None, score=1.0, location='3'):
+    def __init__(self, name=None, parent=None, score=1.0, location='3',
+                 blacklist_re=None):
         self._name = name
         self._tree = {}
         self._exports = {}
         self._parent = parent
+        if blacklist_re:
+            self._blacklist_re = blacklist_re
+        elif parent:
+            self._blacklist_re = parent._blacklist_re
+        else:
+            self._blacklist_re = DEFAULT_BLACKLIST_RE
         self.score = score
         self.location = location
         if parent is None:
@@ -110,7 +117,7 @@ class SymbolIndex(object):
         visitor.visit(st)
 
     def index_file(self, module, filename):
-        if BLACKLIST_RE.search(filename):
+        if self._blacklist_re.search(filename):
             return
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
             with open(filename) as fd:
@@ -121,7 +128,8 @@ class SymbolIndex(object):
 
         :param root: Either a package directory, a .so or a .py module.
         """
-        if os.path.basename(root).startswith('_'):
+        basename = os.path.basename(root)
+        if os.path.splitext(basename)[0] != '__init__' and basename.startswith('_'):
             return
         location = self._determine_location_for(root)
         if os.path.isfile(root):
@@ -158,7 +166,7 @@ class SymbolIndex(object):
             return
 
         with self.enter(name, location=location) as subtree:
-            for key, value in vars(module).iteritems():
+            for key, value in vars(module).items():
                 if not key.startswith('_'):
                     subtree.add(key, 1.1)
 
@@ -190,13 +198,13 @@ class SymbolIndex(object):
             if variable is not None:
                 prefix.append(variable)
             seeking = symbol.split('.')
-            module = []
+            new_module = []
             while prefix and seeking[0] != prefix[0]:
-                module.append(prefix.pop(0))
-            module, variable = '.'.join(module), prefix[0]
-            # os -> '', 'os'
-            if not module:
-                module, variable = variable, None
+                new_module.append(prefix.pop(0))
+            if new_module:
+                module, variable = '.'.join(new_module), prefix[0]
+            else:
+                variable = None
             return module, variable
 
         def score_walk(scope, scale):
@@ -299,7 +307,7 @@ class SymbolIndex(object):
         return LOCATION_BOOSTS.get(self.location, 1.0)
 
     def __repr__(self):
-        return repr(self._tree)
+        return '<%s:%r %r>' % (self.location, self.score, self._tree)
 
     def _merge_aliases(self):
         def create(node, alias, score):
@@ -309,7 +317,9 @@ class SymbolIndex(object):
             with node.enter(name, location='S', score=1.0 if alias else score) as index:
                 create(index, alias, score)
 
-        for alias, (package, score) in SymbolIndex._PACKAGE_ALIASES.items():
+        # Sort the aliases to always create 'os' before 'os.path'
+        for alias in sorted(SymbolIndex._PACKAGE_ALIASES):
+            package, score = SymbolIndex._PACKAGE_ALIASES[alias]
             create(self, package.split('.'), score)
 
     def _score_key(self, scope, key):
