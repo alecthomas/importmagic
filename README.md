@@ -1,4 +1,4 @@
-# Import Magic
+# Import Magic [![image](https://secure.travis-ci.org/alecthomas/importmagic.png?branch=master)](https://travis-ci.org/alecthomas/importmagic)
 
 The goal of this package is to be able to automatically manage imports in Python. To that end it can:
 
