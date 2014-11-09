@@ -38,7 +38,7 @@ def test_parser_symbol_in_global_function():
 
         moo = lambda a: True
 
-        comp = [p for p in sys.path]
+        comp = [p for p in sys.path if p]
 
         sys.path[10] = 2
 
@@ -152,10 +152,27 @@ def test_find_unresolved_and_unreferenced_symbols():
             def __init__(self):
                 print(sys.path, urllib.urlquote('blah'))
 
+            def exc_handler(self):
+                try:
+                    raise SomeException(some_value)
+                except:
+                    pass
+                else:
+                    print(SOME_MSG)
+
+            def cond(self, *args, **kwds):
+                if cond:
+                    pass
+                elif cond2:
+                    print('foo')
+                while cond3:
+                    print(kwds)
+
         """).strip()
     scope = Scope.from_source(src)
     unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
-    assert unresolved == set(['urllib.urlquote'])
+    assert unresolved == set(['urllib.urlquote', 'SomeException', 'some_value',
+                              'SOME_MSG', 'cond', 'cond2', 'cond3'])
     assert unreferenced == set(['A', 'urllib2', 'f'])
 
 

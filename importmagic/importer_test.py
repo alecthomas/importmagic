@@ -2,13 +2,29 @@ from __future__ import absolute_import
 
 from textwrap import dedent
 
-from importmagic.importer import update_imports
+from importmagic.importer import update_imports, get_update
 from importmagic.symbols import Scope
+
+
+def test_get_update(index):
+    src = dedent("""
+         # header comment
+         import sys
+
+         print(os.unknown('/'))
+         """).strip()
+    unresolved, unreferenced = Scope.from_source(src).find_unresolved_and_unreferenced_symbols()
+    start_line, end_line, new_block = get_update(src, index, unresolved, unreferenced)
+    assert dedent("""\
+        import os
+
+
+        """).lstrip() == new_block
 
 
 def test_deep_import_of_unknown_symbol(index):
     src = dedent("""
-        print(os.unknown('/'))
+         print(os.unknown('/'))
          """).strip()
     unresolved, unreferenced = Scope.from_source(src).find_unresolved_and_unreferenced_symbols()
     assert unresolved == set(['os.unknown'])

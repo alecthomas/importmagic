@@ -180,17 +180,23 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
             self.generic_visit(node)
 
     def visit_Raise(self, node):
-        with self._scope.start_reference():
-            self.visit(node.type)
-        with self._scope.start_reference():
-            self.visit(node.inst)
-        with self._scope.start_reference():
-            self.visit(node.tback)
+        if hasattr(node, 'type'):  # Python 2: raise A[, B[, C]]
+            with self._scope.start_reference():
+                self.visit(node.type)
+            with self._scope.start_reference():
+                self.visit(node.inst)
+            with self._scope.start_reference():
+                self.visit(node.tback)
+        else:                      # Python 3: raise A[ from B]
+            with self._scope.start_reference():
+                self.visit(node.exc)
+            with self._scope.start_reference():
+                self.visit(node.cause)
 
     def visit_TryExcept(self, node):
         for sub in node.body:
             with self._scope.start_reference():
-                self.visit(node.body)
+                self.visit(sub)
         self.visit(node.handlers)
         for n in node.orelse:
             with self._scope.start_reference():
