@@ -19,7 +19,7 @@ LIB_LOCATIONS = sorted(set((
 
 
 # Regex matching modules that we never attempt to index.
-BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
+DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
 # Modules to treat as built-in.
 #
 # "os" is here mostly because it imports a whole bunch of aliases from other
@@ -66,11 +66,18 @@ class SymbolIndex(object):
     _PACKAGE_ALIASES = dict((v[0], (k, v[1])) for k, v in PACKAGE_ALIASES.items())
     _SERIALIZED_ATTRIBUTES = {'score': 1.0, 'location': '3'}
 
-    def __init__(self, name=None, parent=None, score=1.0, location='3'):
+    def __init__(self, name=None, parent=None, score=1.0, location='3',
+                 blacklist_re=None):
         self._name = name
         self._tree = {}
         self._exports = {}
         self._parent = parent
+        if blacklist_re:
+            self._blacklist_re = blacklist_re
+        elif parent:
+            self._blacklist_re = parent._blacklist_re
+        else:
+            self._blacklist_re = DEFAULT_BLACKLIST_RE
         self.score = score
         self.location = location
         if parent is None:
@@ -110,7 +117,7 @@ class SymbolIndex(object):
         visitor.visit(st)
 
     def index_file(self, module, filename):
-        if BLACKLIST_RE.search(filename):
+        if self._blacklist_re.search(filename):
             return
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
             with open(filename) as fd:
