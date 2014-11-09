@@ -309,7 +309,9 @@ class SymbolIndex(object):
             with node.enter(name, location='S', score=1.0 if alias else score) as index:
                 create(index, alias, score)
 
-        for alias, (package, score) in SymbolIndex._PACKAGE_ALIASES.items():
+        # Sort the aliases to always create 'os' before 'os.path'
+        for alias in sorted(SymbolIndex._PACKAGE_ALIASES):
+            package, score = SymbolIndex._PACKAGE_ALIASES[alias]
             create(self, package.split('.'), score)
 
     def _score_key(self, scope, key):
