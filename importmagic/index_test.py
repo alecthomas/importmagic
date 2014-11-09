@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import re
 import json
 from textwrap import dedent
 
@@ -8,6 +9,40 @@ from importmagic.index import SymbolIndex
 
 def serialize(tree):
     return json.loads(tree.serialize())
+
+
+def test_index_basic_api(index):
+    assert index.depth() == 0
+    subtree = index._tree['os']
+    assert subtree.depth() == 1
+    assert index.location_for('os.path') == subtree.location_for('os.path')
+    assert index.find('os.walk') == subtree.find('os.walk')
+
+
+def test_index_filesystem(tmpdir):
+    pkg = tmpdir.mkdir('pkg')
+    pkg.join('__init__.py').write('class Cls:\n pass\n')
+    pkg.join('submod.py').write(dedent('''
+        import sys
+        import _private
+        from os import path
+        from other import _x
+
+        def func():
+            pass
+        '''))
+    # these should be ignored
+    pkg.join('mytest_submod.py').write('def func2():\n pass\n')
+    pkg.join('_submod.py').write('def func3():\n pass\n')
+    tree = SymbolIndex(blacklist_re=re.compile('mytest_'))
+    tree.build_index([str(tmpdir)])
+    subtree = tree._tree['pkg']
+    assert serialize(subtree) == {
+        ".location": "L",
+        ".score": 1.0,
+        "Cls": 1.1,
+        "submod": {".location": "L", ".score": 1.0,
+                   "func": 1.1, "sys": 0.25, "path": 0.25}}
 
 
 def test_index_file_with_all():
