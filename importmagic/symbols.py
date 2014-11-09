@@ -243,11 +243,12 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
         with self._scope.enter() as scope:
             with scope.start_definition():
                 args = node.args
-                if args.kwarg:
-                    scope.define(args.kwarg)
-                if args.vararg:
-                    scope.define(args.vararg)
-                for arg in args.args:
+                for arg in [args.kwarg, args.vararg]:
+                    if arg:
+                        # arg is either an "arg" object (Python 3.4+) or a str
+                        scope.define(arg.arg if hasattr(arg, 'arg') else arg)
+                # kwonlyargs was added in Python 3
+                for arg in args.args + getattr(args, 'kwonlyargs', []):
                     scope.define(arg.id if hasattr(arg, 'id') else arg.arg)
             body = [node.body] if isinstance(node, ast.Lambda) else node.body
             with scope.start_reference():

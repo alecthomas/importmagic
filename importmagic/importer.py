@@ -73,7 +73,7 @@ class Imports(object):
     def __init__(self, index, source):
         self._imports = set()
         self._imports_from = defaultdict(set)
-        self._import_begin = self._imports_end = None
+        self._imports_begin = self._imports_end = None
         self._source = source
         self._index = index
         self._parse(source)
@@ -131,7 +131,7 @@ class Imports(object):
             if text:
                 groups.append(out.getvalue())
 
-        start = self._tokens[self._import_begin][2][0] - 1
+        start = self._tokens[self._imports_begin][2][0] - 1
         end = self._tokens[min(len(self._tokens) - 1, self._imports_end)][2][0] - 1
         if groups:
             text = '\n'.join(groups) + '\n\n'
@@ -143,14 +143,14 @@ class Imports(object):
         start, end, text = self.get_update()
         lines = self._source.splitlines()
         lines[start:end] = text.splitlines()
-        return '\n'.join(lines)
+        return '\n'.join(lines) + '\n'
 
     def _parse(self, source):
         reader = StringIO(source)
         self._tokens = list(tokenize.generate_tokens(reader.readline))
         it = Iterator(self._tokens)
-        self._import_begin, self._imports_end = self._find_import_range(it)
-        it = Iterator(self._tokens, start=self._import_begin, end=self._imports_end)
+        self._imports_begin, self._imports_end = self._find_import_range(it)
+        it = Iterator(self._tokens, start=self._imports_begin, end=self._imports_end)
         self._parse_imports(it)
 
     def _find_import_range(self, it):
@@ -270,7 +270,7 @@ class Imports(object):
                 self.add_import_from(module, name, alias=alias)
 
     def __repr__(self):
-        return 'Imports(imports=%r, imports_from=%r)' % (self.imports, self.imports_from)
+        return 'Imports(imports=%r, imports_from=%r)' % (self._imports, self._imports_from)
 
 
 def _process_imports(src, index, unresolved, unreferenced):
