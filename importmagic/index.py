@@ -280,7 +280,7 @@ class SymbolIndex(object):
 
     def add(self, name, score):
         current_score = self._tree.get(name, 0.0)
-        if score > current_score:
+        if isinstance(current_score, float) and score > current_score:
             self._tree[name] = score
 
     @contextmanager
