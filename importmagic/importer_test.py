@@ -34,7 +34,7 @@ def test_deep_import_of_unknown_symbol(index):
 
 
         print(os.unknown('/'))
-        """).strip() == new_src
+        """).strip() == new_src.strip()
 
 
 def test_import_future_preserved(index):
@@ -67,7 +67,7 @@ def test_update_imports_inserts_initial_imports(index):
         print(sys.path[0])
         print(basename('sys/foo'))
         print(path.basename('sys/foo'))
-        """).strip() == new_src
+        """).strip() == new_src.strip()
 
 
 def test_update_imports_inserts_imports(index):
@@ -87,7 +87,7 @@ def test_update_imports_inserts_imports(index):
 
         print(os.path.basename("sys/foo"))
         print(sys.path[0])
-        """).strip() == new_src
+        """).strip() == new_src.strip()
 
 
 def test_update_imports_correctly_aliases(index):
@@ -102,7 +102,7 @@ def test_update_imports_correctly_aliases(index):
 
 
         print(basename('src/foo'))
-        ''').strip() == new_src
+        ''').strip() == new_src.strip()
 
 
 def test_parse_imports(index):
@@ -124,7 +124,7 @@ def test_parse_imports(index):
     assert dedent(r'''
         def main():
             pass
-        ''').strip() == new_src
+        ''').strip() == new_src.strip()
 
 
 def test_imports_inserted_after_preamble(index):
@@ -148,7 +148,7 @@ def test_imports_inserted_after_preamble(index):
 
         def func(n):
             print(basename(n))
-        ''').strip() == new_src
+        ''').strip() == new_src.strip()
 
 
 def test_imports_dont_delete_trailing_comments(index):
@@ -168,7 +168,7 @@ def test_imports_dont_delete_trailing_comments(index):
         # Some function
         def func(n):
             print(basename(n))
-        ''').strip() == new_src
+        ''').strip() == new_src.strip()
 
 
 def test_imports_removes_unused(index):
@@ -186,7 +186,7 @@ def test_imports_removes_unused(index):
 
         def func(n):
             print(basename(n))
-        ''').strip() == new_src
+        ''').strip() == new_src.strip()
 
 
 def test_from_import_as(index):

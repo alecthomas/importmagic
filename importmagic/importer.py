@@ -143,7 +143,7 @@ class Imports(object):
         start, end, text = self.get_update()
         lines = self._source.splitlines()
         lines[start:end] = text.splitlines()
-        return '\n'.join(lines)
+        return '\n'.join(lines) + '\n'
 
     def _parse(self, source):
         reader = StringIO(source)
