@@ -164,6 +164,7 @@ class Imports(object):
         explicit = False
         size = 0
         start = None
+        potential_end_index = -1
 
         while it:
             index, token = it.next()
@@ -181,7 +182,14 @@ class Imports(object):
             # Explicitly tell importmagic to manage a particular block of imports.
             if token[1] == '# importmagic: manage':
                 explicit = True
-            elif token[0] in (tokenize.STRING, tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT):
+            elif token[0] in (tokenize.STRING, tokenize.COMMENT):
+                # If a non-import statement follows, stop the range *before*
+                # this string or comment, in order to keep it out of the
+                # updated import block.
+                if potential_end_index == -1:
+                    potential_end_index = index
+                continue
+            elif token[0] in (tokenize.NEWLINE, tokenize.NL):
                 continue
 
             if not ranges:
@@ -189,6 +197,7 @@ class Imports(object):
 
             # Accumulate imports
             if token[1] in ('import', 'from'):
+                potential_end_index = -1
                 if start is None:
                     start = index
                 size += 1
@@ -200,6 +209,9 @@ class Imports(object):
 
             # Terminate this import range
             elif start is not None and token[1].strip():
+                if potential_end_index > -1:
+                    index = potential_end_index
+                    potential_end_index = -1
                 ranges.append((size, start, index))
                 start = None
                 size = 0
