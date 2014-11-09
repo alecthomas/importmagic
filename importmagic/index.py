@@ -190,13 +190,13 @@ class SymbolIndex(object):
             if variable is not None:
                 prefix.append(variable)
             seeking = symbol.split('.')
-            module = []
+            new_module = []
             while prefix and seeking[0] != prefix[0]:
-                module.append(prefix.pop(0))
-            module, variable = '.'.join(module), prefix[0]
-            # os -> '', 'os'
-            if not module:
-                module, variable = variable, None
+                new_module.append(prefix.pop(0))
+            if new_module:
+                module, variable = '.'.join(new_module), prefix[0]
+            else:
+                variable = None
             return module, variable
 
         def score_walk(scope, scale):
