@@ -34,6 +34,7 @@ def test_index_filesystem(tmpdir):
     # these should be ignored
     pkg.join('mytest_submod.py').write('def func2():\n pass\n')
     pkg.join('_submod.py').write('def func3():\n pass\n')
+    pkg.join('syntaxerr.py').write('def func3():\n')
     tree = SymbolIndex(blacklist_re=re.compile('mytest_'))
     tree.build_index([str(tmpdir)])
     subtree = tree._tree['pkg']

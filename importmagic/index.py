@@ -112,16 +112,19 @@ class SymbolIndex(object):
             st = ast.parse(source, filename)
         except Exception as e:
             print('Failed to parse %s: %s' % (filename, e))
-            return
+            return False
         visitor = SymbolVisitor(self)
         visitor.visit(st)
+        return True
 
     def index_file(self, module, filename):
         if self._blacklist_re.search(filename):
             return
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
             with open(filename) as fd:
-                subtree.index_source(filename, fd.read())
+                success = subtree.index_source(filename, fd.read())
+        if not success:
+            del self._tree[module]
 
     def index_path(self, root):
         """Index a path.
