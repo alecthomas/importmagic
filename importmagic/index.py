@@ -128,7 +128,8 @@ class SymbolIndex(object):
 
         :param root: Either a package directory, a .so or a .py module.
         """
-        if os.path.basename(root).startswith('_'):
+        basename = os.path.basename(root)
+        if os.path.splitext(basename)[0] != '__init__' and basename.startswith('_'):
             return
         location = self._determine_location_for(root)
         if os.path.isfile(root):
