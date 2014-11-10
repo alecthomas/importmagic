@@ -18,7 +18,7 @@ It was originally written for the Sublime Text 2 [Python Import Magic](https://g
 Build an index:
 
 ```python
-index = importmagic.index.SymbolIndex()
+index = importmagic.SymbolIndex()
 index.build_index(sys.path)
 with open('index.json') as fd:
     index.serialize(fd)
@@ -34,26 +34,26 @@ with open('index.json') as fd:
 Find unresolved and unreferenced symbols:
 
 ```python
-scope = importmagic.symbols.Scope.from_source(python_source)
+scope = importmagic.Scope.from_source(python_source)
 unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
 ```
 
 Print new import block:
 
 ```python
-start_line, end_line, import_block = importmagic.importer.get_update(python_source, index, unresolved, unreferenced)
+start_line, end_line, import_block = importmagic.get_update(python_source, index, unresolved, unreferenced)
 ```
 
 Update source code with new import blocks:
 
 ```
-python_source = importmagic.importer.update_imports(python_source, index, unresolved, unreferenced)
+python_source = importmagic.update_imports(python_source, index, unresolved, unreferenced)
 ```
 
 For more fine-grained control over what symbols are imported, the index can be queried directly:
 
 ```python
-imports = importmagic.importer.Imports(index, python_source)
+imports = importmagic.Imports(index, python_source)
 imports.remove(unreferenced)
 
 for symbol in unresolved:

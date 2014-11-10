@@ -1,4 +1,10 @@
+import sys
 from setuptools import Command, find_packages, setup
+
+sys.path.insert(0, '.')
+import importmagic
+
+version = importmagic.__version__
 
 
 class PyTest(Command):
@@ -21,7 +27,7 @@ setup(
     name='importmagic',
     url='http://github.com/alecthomas/importmagic',
     download_url='http://pypi.python.org/pypi/importmagic',
-    version='0.1.0',
+    version=version,
     options=dict(egg_info=dict(tag_build='')),
     description='Python Import Magic - automagically add, remove and manage imports',
     long_description='See http://github.com/alecthomas/importmagic for details.',
