@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from itertools import chain
 
 from importmagic.six import string_types
+from importmagic.util import parse_ast
 
 
 try:
@@ -81,7 +82,7 @@ class Scope(object):
         scope = Scope(define_builtins=define_builtins)
         visitor = UnknownSymbolVisitor(scope, trace=trace)
         if isinstance(src, string_types):
-            src = ast.parse(src)
+            src = parse_ast(src)
         visitor.visit(src)
         scope.flush_symbol()
         return scope

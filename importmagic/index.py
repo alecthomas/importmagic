@@ -9,6 +9,8 @@ import sys
 from contextlib import contextmanager
 from distutils import sysconfig
 
+from importmagic.util import parse_ast
+
 
 LIB_LOCATIONS = sorted(set((
     (sysconfig.get_python_lib(standard_lib=True), 'S'),
@@ -109,7 +111,7 @@ class SymbolIndex(object):
 
     def index_source(self, filename, source):
         try:
-            st = ast.parse(source, filename)
+            st = parse_ast(source, filename)
         except Exception as e:
             print('Failed to parse %s: %s' % (filename, e))
             return False

@@ -1,4 +1,21 @@
+import re
+import ast
+import sys
 from ast import AST, iter_fields
+
+from importmagic.six import text_type
+
+
+CODING_COOKIE_RE = re.compile('(^\s*#.*)coding[:=]', re.M)
+
+
+def parse_ast(source, filename=None):
+    """Parse source into a Python AST, taking care of encoding."""
+    if isinstance(source, text_type) and sys.version_info[0] == 2:
+        # ast.parse() on Python 2 doesn't like encoding declarations
+        # in Unicode strings
+        source = CODING_COOKIE_RE.sub(r'\1', source, 1)
+    return ast.parse(source, filename or '<unknown>')
 
 
 def dump(node, annotate_fields=True, include_attributes=False, indent='  '):

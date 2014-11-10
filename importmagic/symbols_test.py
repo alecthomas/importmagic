@@ -1,7 +1,7 @@
-import pdb
 from textwrap import dedent
 
 from importmagic.symbols import Scope, _symbol_series
+from importmagic.six import u
 
 
 def test_parser_symbol_in_global_function():
@@ -174,6 +174,16 @@ def test_find_unresolved_and_unreferenced_symbols():
     assert unresolved == set(['urllib.urlquote', 'SomeException', 'some_value',
                               'SOME_MSG', 'cond', 'cond2', 'cond3'])
     assert unreferenced == set(['A', 'urllib2', 'f'])
+
+
+def test_accepts_unicode_strings():
+    src = dedent(u("""
+        # coding: utf-8
+        foo
+    """)).strip()
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['foo'])
 
 
 class TestSymbolCollection(object):
