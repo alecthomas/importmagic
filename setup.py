@@ -32,8 +32,6 @@ setup(
     author_email='alec@swapoff.org',
     install_requires=[
         'setuptools >= 0.6b1',
-        'injector',
-        'argh',
     ],
     cmdclass={'test': PyTest},
-    )
+)
