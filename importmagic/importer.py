@@ -283,13 +283,8 @@ class Imports(object):
                 self.add_import_from(module, name, alias=alias)
 
     def __repr__(self):
-<<<<<<< HEAD
-        return 'Imports(imports=%r, imports_from=%r)' % (self._imports, self._imports_from)
-=======
-        return 'Imports(imports={!r}, impots_from={!r}'.format(
-            self.imports, self.imports_from
-        )
->>>>>>> fixed PEP8 violations
+        return 'Imports(imports=%r, imports_from=%r)' % (
+            self._imports, self._imports_from)
 
 
 def _process_imports(src, index, unresolved, unreferenced):
