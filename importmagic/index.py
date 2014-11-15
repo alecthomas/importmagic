@@ -1,13 +1,13 @@
 """Build an index of top-level symbols from Python modules and packages."""
 
-import ast
-import json
-import logging
 import os
 import re
+import ast
 import sys
-from contextlib import contextmanager
+import json
+import logging
 from distutils import sysconfig
+from contextlib import contextmanager
 
 from importmagic.util import parse_ast
 
@@ -65,7 +65,8 @@ class SymbolIndex(object):
         'S': 'System',
         'L': 'Local',
     }
-    _PACKAGE_ALIASES = dict((v[0], (k, v[1])) for k, v in PACKAGE_ALIASES.items())
+    _PACKAGE_ALIASES = dict(
+        (v[0], (k, v[1])) for k, v in PACKAGE_ALIASES.items())
     _SERIALIZED_ATTRIBUTES = {'score': 1.0, 'location': '3'}
 
     def __init__(self, name=None, parent=None, score=1.0, location='3',
@@ -96,10 +97,12 @@ class SymbolIndex(object):
                 if isinstance(value, dict):
                     score = value.pop('.score', 1.0)
                     location = value.pop('.location', parent_location)
-                    with tree.enter(key, score=score, location=location) as subtree:
+                    with tree.enter(
+                            key, score=score, location=location) as subtree:
                         load(subtree, value, location)
                 else:
-                    assert isinstance(value, float), '%s expected to be float was %r' % (key, value)
+                    msg = '%s expected to be float was %r' % (key, value)
+                    assert isinstance(value, float), msg
                     tree.add(key, value)
 
         data = json.load(file)
@@ -122,7 +125,8 @@ class SymbolIndex(object):
     def index_file(self, module, filename):
         if self._blacklist_re.search(filename):
             return
-        with self.enter(module, location=self._determine_location_for(filename)) as subtree:
+        loc = self._determine_location_for(filename)
+        with self.enter(module, location=loc) as subtree:
             with open(filename) as fd:
                 success = subtree.index_source(filename, fd.read())
         if not success:
@@ -139,7 +143,8 @@ class SymbolIndex(object):
         location = self._determine_location_for(root)
         if os.path.isfile(root):
             self._index_module(root, location)
-        elif os.path.isdir(root) and os.path.exists(os.path.join(root, '__init__.py')):
+        elif (os.path.isdir(root)
+                and os.path.exists(os.path.join(root, '__init__.py'))):
             self._index_package(root, location)
 
     def _index_package(self, root, location):
@@ -196,8 +201,8 @@ class SymbolIndex(object):
 
         # sys.path              sys path          ->    import sys
         # os.path.basename      os.path basename  ->    import os.path
-        # basename              os.path basename   ->   from os.path import basename
-        # path.basename         os.path basename   ->   from os import path
+        # basename              os.path basename  ->   from os.path import basename  # noqa
+        # path.basename         os.path basename  ->   from os import path
         def fixup(module, variable):
             prefix = module.split('.')
             if variable is not None:
@@ -217,7 +222,8 @@ class SymbolIndex(object):
             if score > 0.1:
                 try:
                     i = sub_path.index(None)
-                    sub_path, from_symbol = sub_path[:i], '.'.join(sub_path[i + 1:])
+                    sub_path, from_symbol = (
+                        sub_path[:i], '.'.join(sub_path[i + 1:]))
                 except ValueError:
                     from_symbol = None
                 package_path = '.'.join(path + sub_path)
@@ -292,7 +298,8 @@ class SymbolIndex(object):
         else:
             tree = self._tree.get(name)
             if not isinstance(tree, SymbolIndex):
-                tree = self._tree[name] = SymbolIndex(name, self, score=score, location=location)
+                tree = self._tree[name] = SymbolIndex(
+                    name, self, score=score, location=location)
                 if tree.path() in SymbolIndex._PACKAGE_ALIASES:
                     alias_path, _ = SymbolIndex._PACKAGE_ALIASES[tree.path()]
                     alias = self.find(alias_path)
@@ -319,7 +326,8 @@ class SymbolIndex(object):
             if not alias:
                 return
             name = alias.pop(0)
-            with node.enter(name, location='S', score=1.0 if alias else score) as index:
+            rscore = 1.0 if alias else score
+            with node.enter(name, location='S', score=rscore) as index:
                 create(index, alias, score)
 
         # Sort the aliases to always create 'os' before 'os.path'

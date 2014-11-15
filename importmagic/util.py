@@ -36,9 +36,9 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
             return ''.join([
                 node.__class__.__name__,
                 '(\n' + indent + indent * level if fields else '(',
-                (',\n' + indent + indent * level).join(('%s=%s' % field for field in fields)
-                          if annotate_fields else
-                          (b for a, b in fields)),
+                (',\n' + indent + indent * level).join((
+                    '%s=%s' % field for field in fields)
+                    if annotate_fields else (b for a, b in fields)),
                 ')'])
         elif isinstance(node, list):
             lines = ['[']
