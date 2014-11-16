@@ -213,6 +213,7 @@ class Imports(object):
                     index = potential_end_index
                     potential_end_index = -1
                 ranges.append((size, start, index))
+
                 start = None
                 size = 0
                 if explicit:
@@ -229,7 +230,7 @@ class Imports(object):
             index, token = it.next()
 
             if token[1] not in ('import', 'from') and token[1].strip():
-                break
+                continue
 
             type = token[1]
             if type in ('import', 'from'):
