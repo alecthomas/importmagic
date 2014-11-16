@@ -171,6 +171,29 @@ def test_imports_dont_delete_trailing_comments(index):
         ''').strip() == new_src.strip()
 
 
+def test_imports_dont_delete_imports_after_middle_comments(index):
+    src = dedent('''
+        import sys
+        # Some comment
+        import json
+
+        def func(n):
+            print(basename(n))
+            print(json)
+        ''').strip()
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols())
+    assert dedent('''
+        import json
+        from os.path import basename
+
+
+        def func(n):
+            print(basename(n))
+            print(json)
+        ''').strip() == new_src.strip()
+
+
 def test_imports_removes_unused(index):
     src = dedent('''
         import sys
