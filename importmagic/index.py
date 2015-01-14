@@ -162,7 +162,8 @@ class SymbolIndex(object):
             self.index_builtin(import_path, location=location)
 
     def index_builtin(self, name, location):
-        if name.startswith('_'):
+        basename = name.rsplit('.', 1)[-1]
+        if basename.startswith('_'):
             return
         try:
             module = __import__(name, fromlist=['.'])
@@ -170,7 +171,7 @@ class SymbolIndex(object):
             logger.debug('failed to index builtin module %s', name)
             return
 
-        with self.enter(name, location=location) as subtree:
+        with self.enter(basename, location=location) as subtree:
             for key, value in vars(module).items():
                 if not key.startswith('_'):
                     subtree.add(key, 1.1)
