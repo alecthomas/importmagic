@@ -167,7 +167,7 @@ class SymbolIndex(object):
             return
         try:
             module = __import__(name, fromlist=['.'])
-        except ImportError:
+        except Exception:
             logger.debug('failed to index builtin module %s', name)
             return
 
