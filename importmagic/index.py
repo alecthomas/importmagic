@@ -180,6 +180,8 @@ class SymbolIndex(object):
         for builtin in BUILTIN_MODULES:
             self.index_builtin(builtin, location='S')
         for path in paths:
+            # for the implicit "" entry in sys.path
+            path = path or '.'
             if os.path.isdir(path):
                 for filename in os.listdir(path):
                     filename = os.path.join(path, filename)
