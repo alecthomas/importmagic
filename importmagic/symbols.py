@@ -63,7 +63,9 @@ class Scope(object):
         finally:
             self.flush_symbol()
 
-    def extend_symbol(self, segment):
+    def extend_symbol(self, segment, extend_only=False):
+        if extend_only and not self._symbol:
+            return
         self._symbol.append(segment)
 
     def end_symbol(self):
@@ -346,18 +348,15 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
         with self._scope.start_reference():
             self.visit(node.orelse)
 
-    def visit_Tuple(self, node):
-        for elt in node.elts:
-            with self._scope.start_symbol():
-                self.visit(elt)
-
-    def visit_Attribute(self, node):
+    def visit_Attribute(self, node, chain=False):
         if isinstance(node.value, ast.Name):
             self._scope.extend_symbol(node.value.id)
             self._scope.extend_symbol(node.attr)
+            if not chain:
+                self._scope.end_symbol()
         elif isinstance(node.value, ast.Attribute):
-            self.visit(node.value)
-            self._scope.extend_symbol(node.attr)
+            self.visit_Attribute(node.value, chain=True)
+            self._scope.extend_symbol(node.attr, extend_only=True)
         else:
             self._scope.end_symbol()
             self.visit(node.value)
@@ -378,6 +377,7 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         self._scope.extend_symbol(node.id)
+        self._scope.end_symbol()
 
 
 if __name__ == '__main__':

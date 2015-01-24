@@ -237,4 +237,13 @@ class TestSymbolCollection(object):
         assert self._collect('a().b().c()') == set(['a'])
 
     def test_attribute_calls_with_args(self):
-        assert self._collect('a(d).b(e).c(f.g)') == set(['a', 'd', 'e', 'f.g'])
+        assert self._collect('a(d).b.h(e).c(f.g)') == set(['a', 'd', 'e', 'f.g'])
+
+    def test_subscript_with_attrs(self):
+        assert self._collect('a[h].b.c.d[e.f.g]()') == set(['a', 'h', 'e.f.g'])
+
+    def test_multiple_names(self):
+        assert self._collect('a == b') == set(['a', 'b'])
+
+    def test_multiple_attributes(self):
+        assert self._collect('a.c == b.d') == set(['a.c', 'b.d'])
