@@ -1,0 +1,14 @@
+Changelog for importmagic
+-------------------------
+
+* 0.1.2 (26-01-2015)
+
+  - Do not write to stdout, use logging, when parsing files fails.
+
+* 0.1.1 (24-01-2015)
+
+  - Do not treat multiple name references (`a == b`) as attributes (`a.b`).
+
+* 0.1.0 (20-01-2015)
+
+  - Initial release.
