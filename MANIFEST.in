@@ -1,3 +1,4 @@
+include CHANGES
 include README.md
 include runtests.py
 include pytest.ini
