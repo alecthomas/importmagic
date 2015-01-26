@@ -88,6 +88,7 @@ class SymbolIndex(object):
                 pass
             with self.enter('__builtin__', location='S'):
                 pass
+        
 
     @classmethod
     def deserialize(self, file):
@@ -113,7 +114,7 @@ class SymbolIndex(object):
         try:
             st = parse_ast(source, filename)
         except Exception as e:
-            print('Failed to parse %s: %s' % (filename, e))
+            logger.debug('failed to parse %s: %s', filename, e)
             return False
         visitor = SymbolVisitor(self)
         visitor.visit(st)
