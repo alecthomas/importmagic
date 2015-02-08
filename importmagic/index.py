@@ -88,7 +88,6 @@ class SymbolIndex(object):
                 pass
             with self.enter('__builtin__', location='S'):
                 pass
-        
 
     @classmethod
     def deserialize(self, file):
@@ -123,6 +122,7 @@ class SymbolIndex(object):
     def index_file(self, module, filename):
         if self._blacklist_re.search(filename):
             return
+        logger.debug('parsing Python module %s for indexing', filename)
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
             with open(filename) as fd:
                 success = subtree.index_source(filename, fd.read())
@@ -166,6 +166,7 @@ class SymbolIndex(object):
         basename = name.rsplit('.', 1)[-1]
         if basename.startswith('_'):
             return
+        logger.debug('importing builtin module %s for indexing', name)
         try:
             module = __import__(name, fromlist=['.'])
         except Exception:
