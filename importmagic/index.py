@@ -124,7 +124,7 @@ class SymbolIndex(object):
             return
         logger.debug('parsing Python module %s for indexing', filename)
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
-            with open(filename) as fd:
+            with open(filename, mode='rb') as fd:
                 success = subtree.index_source(filename, fd.read())
         if not success:
             del self._tree[module]
