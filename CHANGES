@@ -3,7 +3,7 @@ Changelog for importmagic
 
 * 0.1.3 (11-02-2015)
 
-  - Do not choke on modules with non-UTF8 encoding on Python 3.
+  - Do not choke on modules with non-UTF8 encoding on Python 3 (#13).
 
 * 0.1.2 (26-01-2015)
 
