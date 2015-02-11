@@ -123,9 +123,10 @@ class SymbolIndex(object):
         if self._blacklist_re.search(filename):
             return
         logger.debug('parsing Python module %s for indexing', filename)
+        with open(filename, 'rb') as fd:
+            source = fd.read()
         with self.enter(module, location=self._determine_location_for(filename)) as subtree:
-            with open(filename, mode='rb') as fd:
-                success = subtree.index_source(filename, fd.read())
+            success = subtree.index_source(filename, source)
         if not success:
             del self._tree[module]
 
