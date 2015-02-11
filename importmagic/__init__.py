@@ -4,7 +4,7 @@ This module just exports the main API of importmagic.
 """
 
 __author__ = 'Alec Thomas <alec@swapoff.org>'
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 from importmagic.importer import Import, Imports, get_update, update_imports
 from importmagic.index import SymbolIndex
