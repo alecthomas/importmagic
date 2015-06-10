@@ -104,7 +104,7 @@ class Imports(object):
                     continue
                 out.write('import {module}{alias}\n'.format(
                     module=imp.name,
-                    alias='as {alias}'.format(alias=imp.alias) if imp.alias else '',
+                    alias=' as {alias}'.format(alias=imp.alias) if imp.alias else '',
                 ))
 
             for module, imports in sorted(self._imports_from.items()):
