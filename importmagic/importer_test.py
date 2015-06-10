@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from textwrap import dedent
 
-from importmagic.importer import update_imports, get_update
+from importmagic.importer import Imports, get_update, update_imports
 from importmagic.symbols import Scope
 
 
@@ -236,7 +236,8 @@ def test_from_import_as(index):
     assert src == new_src.strip()
 
 
-def test_importer_wrapping(index):
+def test_importer_wrapping_escaped(index):
+    Imports.set_style(multiline='backslash')
     src = dedent('''
         from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton
         from waffle import stuff
@@ -256,6 +257,71 @@ def test_importer_wrapping(index):
     new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
     assert expected_src == new_src
 
+def test_importer_wrapping_escaped_longer(index):
+    Imports.set_style(multiline='backslash')
+    src = dedent('''
+        from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum
+        from waffle import stuff
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
+        ''').strip()
+    expected_src = dedent('''
+        from injector import Binder, Injector, InstanceProvider, Key, MappingKey, \\
+            Module, Scope, ScopeDecorator, SequenceKey, bar, baz, cux, foo, imported, \\
+            inject, ipsum, lorem, more, provides, singleton, things
+        from waffle import stuff
+
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
+        ''').strip()
+
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
+    assert expected_src == new_src
+
+def test_importer_wrapping_parentheses(index):
+    Imports.set_style(multiline='parentheses')
+    src = dedent('''
+        from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton
+        from waffle import stuff
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, stuff
+        ''').strip()
+    expected_src = dedent('''
+        from injector import (Binder, Injector, InstanceProvider, Key, MappingKey,
+            Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton)
+        from waffle import stuff
+
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, stuff
+        ''').strip()
+
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
+    assert expected_src == new_src
+
+
+def test_importer_wrapping_parentheses_longer(index):
+    Imports.set_style(multiline='parentheses')
+    src = dedent('''
+        from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum
+        from waffle import stuff
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
+        ''').strip()
+    expected_src = dedent('''
+        from injector import (Binder, Injector, InstanceProvider, Key, MappingKey,
+            Module, Scope, ScopeDecorator, SequenceKey, bar, baz, cux, foo, imported,
+            inject, ipsum, lorem, more, provides, singleton, things)
+        from waffle import stuff
+
+
+        Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
+        ''').strip()
+
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
+    assert expected_src == new_src
 
 def test_importer_directives(index):
     src = dedent('''
