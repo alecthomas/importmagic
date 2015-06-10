@@ -70,6 +70,9 @@ LOCATION_ORDER = 'FS3L'
 
 
 class Imports(object):
+
+    _style = {'multiline': 'parentheses'}
+
     def __init__(self, index, source):
         self._imports = set()
         self._imports_from = defaultdict(set)
@@ -77,6 +80,10 @@ class Imports(object):
         self._source = source
         self._index = index
         self._parse(source)
+
+    @classmethod
+    def set_style(cls, **kwargs):
+        cls._style.update(kwargs)
 
     def add_import(self, name, alias=None):
         location = LOCATION_ORDER.index(self._index.location_for(name))
@@ -117,19 +124,37 @@ class Imports(object):
                            alias=' as {alias}'.format(alias=i.alias) if i.alias else ''
                            ) for i in imports]
                 clauses.reverse()
+                line_len = len(line)
+                line_pieces = []
+                paren_used = False
                 while clauses:
                     clause = clauses.pop()
-                    if len(line) + len(clause) + 1 > 80:
-                        line += '\\\n'
-                        out.write(line)
+                    next_len = line_len + len(clause) + 2
+                    if next_len > self._style['max_columns']:
+                        imported_items = ', '.join(line_pieces)
+                        if self._style['multiline'] == 'parentheses':
+                            line_tail = ',\n'
+                            if not paren_used:
+                                line += '('
+                                paren_used = True
+                            line_pieces.append('\n')
+                        else:
+                            # Use a backslash
+                            line_tail = ', \\\n'
+                        out.write(line + imported_items + line_tail)
                         line = '    '
-                    line += clause + (', ' if clauses else '')
+                        line_len = len(line) + len(clause) + 2
+                        line_pieces = [clause]
+                    else:
+                        line_pieces.append(clause)
+                        line_len = next_len
+                line += ', '.join(line_pieces) + (')\n' if paren_used else '\n')
                 if line.strip():
-                    out.write(line + '\n')
+                    out.write(line)
 
             text = out.getvalue()
             if text:
-                groups.append(out.getvalue())
+                groups.append(text)
 
         start = self._tokens[self._imports_begin][2][0] - 1
         end = self._tokens[min(len(self._tokens) - 1, self._imports_end)][2][0] - 1
