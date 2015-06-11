@@ -211,6 +211,21 @@ def test_imports_removes_unused(index):
             print(basename(n))
         ''').strip() == new_src.strip()
 
+def test_import_as_kept(index):
+    src = dedent('''
+        import time as taim
+
+
+        taim.sleep(0)
+        ''').strip()
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols())
+    assert dedent('''
+        import time as taim
+
+
+        taim.sleep(0)
+        ''').strip() == new_src.strip()
 
 def test_from_import_as(index):
     src = dedent('''
