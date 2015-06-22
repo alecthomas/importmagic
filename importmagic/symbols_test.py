@@ -113,6 +113,15 @@ def test_symbol_from_nested_tuples():
     assert symbols == set(['os', 'os.path', 'sys'])
 
 
+def test_symbol_from_argument_defaults():
+    src = dedent("""
+        def f(a, b=os.path, c=os): pass
+        """)
+
+    symbols, _ = Scope.from_source(src).find_unresolved_and_unreferenced_symbols()
+    assert symbols == set(['os.path', 'os'])
+
+
 def test_symbol_from_decorator():
     src = dedent("""
         @foo.bar(a=waz)
