@@ -257,7 +257,7 @@ def test_importer_wrapping(index):
     assert expected_src == new_src
 
 
-def test_importer_directives(index):
+def test_importer_directives_referenced(index):
     src = dedent('''
         from gevent.monkey import patch_all; patch_all()
 
@@ -269,6 +269,34 @@ def test_importer_directives(index):
         ''').strip()
     expected_src = dedent('''
         from gevent.monkey import patch_all; patch_all()
+
+        # importmagic: manage
+        import os.path
+
+
+        print(os.path.basename('moo'))
+        ''').strip()
+    scope = Scope.from_source(src)
+    new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
+    assert expected_src == new_src
+
+def test_importer_directives_not_referenced(index):
+    src = dedent('''
+        # Make sure the in thread reactor is installed.
+        from Tribler.Core.Utilities.twisted_thread import reactor
+
+
+        # importmagic: manage
+        import re
+        import sys
+
+
+        print(os.path.basename('moo'))
+        ''').strip()
+    expected_src = dedent('''
+        # Make sure the in thread reactor is installed.
+        from Tribler.Core.Utilities.twisted_thread import reactor
+
 
         # importmagic: manage
         import os.path
