@@ -206,9 +206,12 @@ class Imports(object):
             if indentation:
                 continue
 
-            # Explicitly tell importmagic to manage a particular block of imports.
+            # Explicitly tell importmagic to manage the following block of imports
             if token[1] == '# importmagic: manage':
+                ranges = []
+                start = index + 2  # Start managing imports after directive comment + newline.
                 explicit = True
+                continue
             elif token[0] in (tokenize.STRING, tokenize.COMMENT):
                 # If a non-import statement follows, stop the range *before*
                 # this string or comment, in order to keep it out of the
@@ -244,7 +247,6 @@ class Imports(object):
                 start = None
                 size = 0
                 if explicit:
-                    ranges = ranges[-1:]
                     break
 
         if start is not None:
