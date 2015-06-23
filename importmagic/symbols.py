@@ -15,7 +15,6 @@ except:
     import __builtin__
 
 
-
 class _InvalidSymbol(Exception):
     pass
 
@@ -93,7 +92,10 @@ class Scope(object):
         self._cursor._definitions.update(Scope.ALL_BUILTINS)
 
     def define(self, name):
-        self._cursor._definitions.add(name)
+        if '.' in name:
+            self.reference(name)
+        else:
+            self._cursor._definitions.add(name)
 
     def reference(self, name):
         self._cursor._references.add(name)

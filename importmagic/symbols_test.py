@@ -93,6 +93,14 @@ def test_path_from_node_function():
     assert unresolved == set(['waz', 'os.path.basename'])
 
 
+def test_symbol_from_assignment():
+    src = dedent('''
+        def f(n): sys.stderr = n
+        ''')
+    unresolved, _ = Scope.from_source(src).find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['sys.stderr'])
+
+
 def test_path_from_node_subscript():
     src = dedent('''
         sys.path[0].tolower()
