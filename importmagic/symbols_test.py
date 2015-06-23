@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from importmagic.symbols import Scope, _symbol_series
 from importmagic.six import u
+from importmagic.symbols import Scope, _symbol_series
 
 
 def test_parser_symbol_in_global_function():
@@ -111,6 +111,14 @@ def test_path_from_node_subscript():
 
 def test_symbol_series():
     assert _symbol_series('os.path.basename') == ['os', 'os.path', 'os.path.basename']
+
+
+def test_symbol_in_expression():
+    src = dedent('''
+        (db.Event.creator_id == db.Account.id) & (db.Account.user_id == bindparam('user_id'))
+        ''')
+    unresolved, _ = Scope.from_source(src).find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['db.Event.creator_id', 'db.Account.id', 'db.Account.user_id', 'bindparam'])
 
 
 def test_symbol_from_nested_tuples():

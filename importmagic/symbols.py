@@ -183,6 +183,7 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
                 raise
         else:
             self.generic_visit(node)
+            self._scope.end_symbol()
 
     def visit_Raise(self, node):
         if hasattr(node, 'type'):  # Python 2: raise A[, B[, C]]

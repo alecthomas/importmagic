@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-import re
 import json
+import re
 from textwrap import dedent
 
 from importmagic.index import SymbolIndex

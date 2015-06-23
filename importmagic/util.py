@@ -1,5 +1,5 @@
-import re
 import ast
+import re
 import sys
 from ast import AST, iter_fields
 
