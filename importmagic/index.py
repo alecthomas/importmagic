@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import sys
+from collections import defaultdict
 from contextlib import contextmanager
 from distutils import sysconfig
 
@@ -258,6 +259,7 @@ class SymbolIndex(object):
 
     def add_explicit_export(self, name, score):
         self._exports[name] = score
+        self.add(name, score)
 
     def find(self, path):
         """Return the node for a path, or None."""
