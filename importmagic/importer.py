@@ -57,7 +57,7 @@ class Import(object):
         return self.location == other.location and self.name == other.name and self.alias == other.alias
 
     def __ne__(self, other):
-        return self.location != other.location or self.name != other.name or self.alias != other.alias
+        return not (self == other)
 
     def __lt__(self, other):
         return self.location < other.location \

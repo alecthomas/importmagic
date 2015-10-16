@@ -1,12 +1,12 @@
 """Build an index of top-level symbols from Python modules and packages."""
 
+import os
+import sys
+
 import ast
 import json
 import logging
-import os
 import re
-import sys
-from collections import defaultdict
 from contextlib import contextmanager
 from distutils import sysconfig
 
@@ -19,7 +19,6 @@ LIB_LOCATIONS = sorted(set((
     (sysconfig.get_python_lib(standard_lib=True, prefix=sys.prefix), 'S'),
     (sysconfig.get_python_lib(plat_specific=True, prefix=sys.prefix), '3'),
 )), key=lambda l: -len(l[0]))
-
 
 # Regex matching modules that we never attempt to index.
 DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
@@ -49,6 +48,8 @@ class JSONEncoder(json.JSONEncoder):
             d = o._tree.copy()
             d.update(('.' + name, getattr(o, name))
                      for name in SymbolIndex._SERIALIZED_ATTRIBUTES)
+            if o._lib_locations is not None:
+                d['.lib_locations'] = o._lib_locations
             return d
         return super(JSONEncoder, self).default(o)
 
@@ -69,8 +70,8 @@ class SymbolIndex(object):
     _PACKAGE_ALIASES = dict((v[0], (k, v[1])) for k, v in PACKAGE_ALIASES.items())
     _SERIALIZED_ATTRIBUTES = {'score': 1.0, 'location': '3'}
 
-    def __init__(self, name=None, parent=None, score=1.0, location='3',
-                 blacklist_re=None):
+    def __init__(self, name=None, parent=None, score=1.0, location='L',
+                 blacklist_re=None, locations=None):
         self._name = name
         self._tree = {}
         self._exports = {}
@@ -84,11 +85,21 @@ class SymbolIndex(object):
         self.score = score
         self.location = location
         if parent is None:
+            self._lib_locations = locations or LIB_LOCATIONS
+        else:
+            self._lib_locations = None
+        if parent is None:
             self._merge_aliases()
             with self.enter('__future__', location='F'):
                 pass
             with self.enter('__builtin__', location='S'):
                 pass
+
+    @property
+    def lib_locations(self):
+        if self._parent:
+            return self._parent.lib_locations
+        return self._lib_locations
 
     @classmethod
     def deserialize(self, file):
@@ -106,7 +117,7 @@ class SymbolIndex(object):
         data = json.load(file)
         data.pop('.location', None)
         data.pop('.score', None)
-        tree = SymbolIndex()
+        tree = SymbolIndex(locations=data.pop('.lib_locations', LIB_LOCATIONS))
         load(tree, data, 'L')
         return tree
 
@@ -128,7 +139,7 @@ class SymbolIndex(object):
             with open(filename, mode='rb') as fd:
                 success = subtree.index_source(filename, fd.read())
         if not success:
-            del self._tree[module]
+            self._tree.pop(module, None)
 
     def index_path(self, root):
         """Index a path.
@@ -347,7 +358,7 @@ class SymbolIndex(object):
             return [key[0]] + path, (score + value.score) * scope.boost()
 
     def _determine_location_for(self, path):
-        for dir, location in LIB_LOCATIONS:
+        for dir, location in self.lib_locations:
             if path.startswith(dir):
                 return location
         return 'L'
