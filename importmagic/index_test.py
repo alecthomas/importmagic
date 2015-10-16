@@ -82,8 +82,8 @@ def test_index_symbol_scores():
         with os_tree.enter('path') as path_tree:
             path_tree.index_source('os.py', src)
     assert tree.symbol_scores('walk')[0][1:] == ('os.path', 'walk')
-    assert tree.symbol_scores('os') == [(1.44, 'os', None)]
-    assert tree.symbol_scores('os.path.walk') == [(4.2, 'os.path', None)]
+    assert tree.symbol_scores('os') == [(1.7999999999999998, 'os', None)]
+    assert tree.symbol_scores('os.path.walk') == [(5.25, 'os.path', None)]
 
 
 def test_index_score_deep_unknown_attribute(index):
