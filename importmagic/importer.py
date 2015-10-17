@@ -174,7 +174,16 @@ class Imports(object):
 
     def _parse(self, source):
         reader = StringIO(source)
-        self._tokens = list(tokenize.generate_tokens(reader.readline))
+        # parse until EOF or TokenError (allows incomplete modules)
+        tokens = []
+        try:
+            tokens.extend(tokenize.generate_tokens(reader.readline))
+        except tokenize.TokenError:
+            # TokenError happens always at EOF, for unclosed strings or brackets.
+            # We don't care about that here, since we still can recover the whole
+            # source code.
+            pass
+        self._tokens = tokens
         it = Iterator(self._tokens)
         self._imports_begin, self._imports_end = self._find_import_range(it)
         it = Iterator(self._tokens, start=self._imports_begin, end=self._imports_end)

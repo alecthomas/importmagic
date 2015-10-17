@@ -414,3 +414,17 @@ def test_importer_directives_not_referenced(index):
     scope = Scope.from_source(src)
     new_src = update_imports(src, index, *scope.find_unresolved_and_unreferenced_symbols()).strip()
     assert expected_src == new_src
+
+
+def test_imports_partial_file(index):
+    src = dedent('''
+        import re
+        import sys
+
+
+        a = "
+
+        print(
+        ''')
+    imports = Imports(index, src)
+    assert imports.update_source() == src
