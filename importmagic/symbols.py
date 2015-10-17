@@ -376,7 +376,13 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
     def visit_Call(self, node):
         with self._scope.start_reference():
             self.visit(node.func)
-        for arg in chain(node.args, node.keywords, filter(None, [node.starargs, node.kwargs])):
+        # Python 3.5 AST removed starargs and kwargs
+        additional = []
+        if getattr(node, 'starargs', None):
+            additional.append(node.starargs)
+        if getattr(node, 'kwargs', None):
+            additional.append(node.kwargs)
+        for arg in chain(node.args, node.keywords, additional):
             with self._scope.start_reference():
                 self.visit(arg)
 
