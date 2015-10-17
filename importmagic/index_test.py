@@ -5,6 +5,7 @@ import re
 from textwrap import dedent
 
 from importmagic.index import SymbolIndex
+from importmagic.six import b
 
 
 def serialize(tree):
@@ -31,6 +32,8 @@ def test_index_filesystem(tmpdir):
         def func():
             pass
         '''))
+    with pkg.join('encoded.py').open('wb') as fp:
+        fp.write(b('# encoding: latin1\ndef foo():\n print("\xff")'))
     # these should be ignored
     pkg.join('mytest_submod.py').write('def func2():\n pass\n')
     pkg.join('_submod.py').write('def func3():\n pass\n')
@@ -43,7 +46,9 @@ def test_index_filesystem(tmpdir):
         ".score": 1.0,
         "Cls": 1.1,
         "submod": {".location": "L", ".score": 1.0,
-                   "func": 1.1, "sys": 0.25, "path": 0.25}}
+                   "func": 1.1, "sys": 0.25, "path": 0.25},
+        "encoded": {".location": "L", ".score": 1.0,
+                    "foo": 1.1}}
 
 
 def test_index_file_with_all():
