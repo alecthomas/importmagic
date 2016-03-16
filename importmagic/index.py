@@ -18,6 +18,8 @@ LIB_LOCATIONS = sorted(set((
     (sysconfig.get_python_lib(plat_specific=True), '3'),
     (sysconfig.get_python_lib(standard_lib=True, prefix=sys.prefix), 'S'),
     (sysconfig.get_python_lib(plat_specific=True, prefix=sys.prefix), '3'),
+    (sysconfig.get_python_lib(standard_lib=True, prefix='/usr/local'), 'S'),
+    (sysconfig.get_python_lib(plat_specific=True, prefix='/usr/local'), '3'),
 )), key=lambda l: -len(l[0]))
 
 # Regex matching modules that we never attempt to index.
