@@ -18,6 +18,8 @@ LIB_LOCATIONS = sorted(set((
     (sysconfig.get_python_lib(plat_specific=True), '3'),
     (sysconfig.get_python_lib(standard_lib=True, prefix=sys.prefix), 'S'),
     (sysconfig.get_python_lib(plat_specific=True, prefix=sys.prefix), '3'),
+    (sysconfig.get_python_lib(standard_lib=True, prefix='/usr/local'), 'S'),
+    (sysconfig.get_python_lib(plat_specific=True, prefix='/usr/local'), '3'),
 )), key=lambda l: -len(l[0]))
 
 # Regex matching modules that we never attempt to index.
@@ -28,6 +30,8 @@ DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
 # modules. The simplest way of dealing with that is just to import it and use
 # vars() on it.
 BUILTIN_MODULES = sys.builtin_module_names + ('os',)
+
+_PYTHON_VERSION = 'python{}.{}'.format(sys.version_info.major, sys.version_info.minor)
 
 LOCATION_BOOSTS = {
     '3': 1.2,
@@ -359,6 +363,13 @@ class SymbolIndex(object):
             return [key[0]] + path, (score + value.score) * scope.boost()
 
     def _determine_location_for(self, path):
+        parts = path.split(os.path.sep)
+        # Heuristic classifier
+        if 'site-packages' in parts:
+            return '3'
+        elif _PYTHON_VERSION in parts:
+            return 'S'
+        # Use table from sysconfig.get_python_lib()
         for dir, location in self.lib_locations:
             if path.startswith(dir):
                 return location
