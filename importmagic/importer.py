@@ -273,8 +273,9 @@ class Imports(object):
             type = token[1]
             if type in ('import', 'from'):
                 tokens = it.until(tokenize.NEWLINE)
-                tokens = [t[1] for i, t in tokens
-                          if t[0] == tokenize.NAME or t[1] in ',.']
+                tokens = [
+                    t[1] for i, t in tokens
+                    if t[0] == tokenize.NAME or t[1] in (',', '.', '...')]
                 tokens.reverse()
                 self._parse_import(type, tokens)
 
