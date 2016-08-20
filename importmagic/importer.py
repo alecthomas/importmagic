@@ -72,7 +72,7 @@ LOCATION_ORDER = 'FS3L'
 class Imports(object):
 
     _style = {'multiline': 'parentheses',
-              'max_columns': 80,
+              'max_columns': 79,
     }
 
     def __init__(self, index, source):
