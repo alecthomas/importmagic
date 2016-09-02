@@ -1,7 +1,12 @@
 """Imports new symbols."""
 
+import os
 import tokenize
 from collections import defaultdict
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 
 from importmagic.six import StringIO
 
@@ -68,24 +73,41 @@ class Import(object):
 # See SymbolIndex.LOCATIONS for details.
 LOCATION_ORDER = 'FS3L'
 
+PROJECT_CONFIG_FILE = 'setup.cfg'
+
 
 class Imports(object):
 
-    _style = {'multiline': 'parentheses',
-              'max_columns': 79,
-    }
+    _style = {'multiline': 'parentheses', 'max_columns': 79}
 
-    def __init__(self, index, source):
+    def __init__(self, index, source, root_dir=None):
         self._imports = set()
         self._imports_from = defaultdict(set)
         self._imports_begin = self._imports_end = None
         self._source = source
         self._index = index
+        self._root_dir = root_dir
         self._parse(source)
+        if root_dir:
+            style = self.get_style_from_config()
+            self._style.update(style)
 
     @classmethod
     def set_style(cls, **kwargs):
         cls._style.update(kwargs)
+
+    def get_style_from_config(self):
+        style = {}
+        cfg_path = os.path.join(self._root_dir, PROJECT_CONFIG_FILE)
+        config = ConfigParser()
+        config.read([cfg_path])
+        imp_cfg = config['importmagic']
+
+        if imp_cfg['multiline']:
+            style['multiline'] = imp_cfg['multiline']
+        if imp_cfg['max_columns']:
+            style['max_columns'] = int(imp_cfg['max_columns'])
+        return style
 
     def add_import(self, name, alias=None):
         location = LOCATION_ORDER.index(self._index.location_for(name))
