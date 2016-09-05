@@ -66,3 +66,33 @@ for symbol in unresolved:
 
 python_source = imports.update_source()
 ```
+
+
+### Configuration
+
+Configuring import styles
+
+1. Using `importmagic.Imports`.
+
+```python
+imports = importmagic.Imports.set_style(multiline='backslash', max_columns=80)
+```
+
+`multiline` takes `backlslash` or `parentheses`.
+
+
+2. From `setup.cfg`
+
+Add configuration to setup.cfg
+
+```python
+[importmagic]
+multiline = 'parentheses'
+max_columns = 120
+```
+
+and pass root directory to importmagic
+
+```python
+imports = importmagic.Imports(root_dir='/foo/bar/')
+```
