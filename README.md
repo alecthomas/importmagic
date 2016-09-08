@@ -15,6 +15,13 @@ It was originally written for the Sublime Text 2 [Python Import Magic](https://g
 
 ## Using the library
 
+Getting index from cache:
+
+```python
+index = importmagic.SymbolIndex()
+index.get_or_create_index(name='foo', paths=sys.path)
+```
+
 Build an index:
 
 ```python
