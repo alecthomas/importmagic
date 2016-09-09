@@ -335,8 +335,8 @@ class Imports(object):
         return 'Imports(imports=%r, imports_from=%r)' % (self._imports, self._imports_from)
 
 
-def _process_imports(src, index, unresolved, unreferenced):
-    imports = Imports(index, src)
+def _process_imports(src, index, unresolved, unreferenced, project_root):
+    imports = Imports(index, src, project_root)
     imports.remove(unreferenced)
     for symbol in unresolved:
         scores = index.symbol_scores(symbol)
@@ -355,8 +355,8 @@ def _process_imports(src, index, unresolved, unreferenced):
     return imports
 
 
-def get_update(src, index, unresolved, unreferenced):
-    imports = _process_imports(src, index, unresolved, unreferenced)
+def get_update(src, index, unresolved, unreferenced, project_root=None):
+    imports = _process_imports(src, index, unresolved, unreferenced, project_root)
     return imports.get_update()
 
 
