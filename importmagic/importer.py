@@ -360,6 +360,6 @@ def get_update(src, index, unresolved, unreferenced, project_root=None):
     return imports.get_update()
 
 
-def update_imports(src, index, unresolved, unreferenced):
-    imports = _process_imports(src, index, unresolved, unreferenced)
+def update_imports(src, index, unresolved, unreferenced, project_root=None):
+    imports = _process_imports(src, index, unresolved, unreferenced, project_root)
     return imports.update_source()
