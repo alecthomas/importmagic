@@ -442,4 +442,5 @@ class SymbolVisitor(ast.NodeVisitor):
 if __name__ == '__main__':
     # print ast.dump(ast.parse(open('pyautoimp.py').read(), 'pyautoimp.py'))
     tree = SymbolIndex()
-    tree.get_or_create_index()
+    tree.build_index(sys.path)
+    tree.serialize(sys.stdout)
