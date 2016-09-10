@@ -1,6 +1,8 @@
 import ast
+import os
 import re
 import sys
+from sys import platform
 from ast import AST, iter_fields
 
 from importmagic.six import text_type
@@ -54,3 +56,18 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
     if not isinstance(node, AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
+
+
+def get_cache_dir():
+    if platform.startswith('linux'):
+        cache_dir = '~/.cache/importmagic/'
+    elif platform == 'darwin':
+        cache_dir = '~/Library/Caches/importmagic'
+    elif platform in ('win32', 'cygwin'):
+        cache_dir = '%APPDATA%\importmagic'
+
+    cache_dir = os.path.expanduser(cache_dir)
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
+
+    return cache_dir

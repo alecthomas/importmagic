@@ -1,16 +1,15 @@
 """Build an index of top-level symbols from Python modules and packages."""
 
-import os
-import sys
-
 import ast
 import json
 import logging
+import os
 import re
+import sys
 from contextlib import contextmanager
 from distutils import sysconfig
 
-from importmagic.util import parse_ast
+from importmagic.util import get_cache_dir, parse_ast
 
 
 LIB_LOCATIONS = sorted(set((
@@ -205,6 +204,29 @@ class SymbolIndex(object):
                 for filename in os.listdir(path):
                     filename = os.path.join(path, filename)
                     self.index_path(filename)
+
+    def get_or_create_index(self, paths=None, name=None, refresh=False):
+        """
+        Get index with given name from cache. Create if it doesn't exists.
+        """
+        if not paths:
+            paths = sys.path
+        if not name:
+            name = 'default'
+        self._name = name
+
+        idx_dir = get_cache_dir()
+        idx_file = os.path.join(idx_dir, name + '.json')
+
+        if os.path.exists(idx_file) and not refresh:
+            with open(idx_file) as fd:
+                self.deserialize(fd)
+        else:
+            self.build_index(paths)
+            with open(idx_file, 'w') as fd:
+                self.serialize(fd)
+
+        return self
 
     def symbol_scores(self, symbol):
         """Find matches for symbol.
