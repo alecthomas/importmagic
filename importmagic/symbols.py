@@ -256,8 +256,17 @@ class UnknownSymbolVisitor(ast.NodeVisitor):
                 # kwonlyargs was added in Python 3
                 for arg in args.args + getattr(args, 'kwonlyargs', []):
                     scope.define(arg.id if hasattr(arg, 'id') else arg.arg)
+
+                    # Python 3 arguments annotation
+                    if hasattr(arg, 'annotation') and arg.annotation:
+                        self.visit(arg.annotation)
+
                 for default in args.defaults:
                     self.visit(default)
+                
+                # Python 3 return annotation
+                if hasattr(node, 'returns'):
+                    self.visit(node.returns)    
             body = [node.body] if isinstance(node, ast.Lambda) else node.body
             with scope.start_reference():
                 for statement in body:

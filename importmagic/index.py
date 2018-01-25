@@ -28,7 +28,7 @@ DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)
 # "os" is here mostly because it imports a whole bunch of aliases from other
 # modules. The simplest way of dealing with that is just to import it and use
 # vars() on it.
-BUILTIN_MODULES = sys.builtin_module_names + ('os',)
+BUILTIN_MODULES = sys.builtin_module_names + ('os', 'typing',)
 
 _PYTHON_VERSION = 'python{}.{}'.format(sys.version_info.major, sys.version_info.minor)
 

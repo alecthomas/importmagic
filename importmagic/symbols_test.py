@@ -1,5 +1,7 @@
+import sys
 from textwrap import dedent
 
+import pytest
 from importmagic.six import u
 from importmagic.symbols import Scope, _symbol_series
 
@@ -210,6 +212,79 @@ def test_accepts_unicode_strings():
     unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
     assert unresolved == set(['foo'])
 
+@pytest.mark.skipif(sys.version_info < (3, 0), reason="requires python3")
+def test_annotations_without_imports():
+    src = dedent("""
+        def print_it(it: Iterable):
+            for i in it:
+                method1(i)
+        print_it(['a', 'b', 'c'])
+        """)
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['method1', 'Iterable'])
+    assert unreferenced == set([])
+
+@pytest.mark.skipif(sys.version_info < (3, 0), reason="requires python3")
+def test_annotations_with_imports():
+    src = dedent("""
+        from typing import Iterable
+
+        def print_it(it: Iterable):
+            for i in it:
+                print(i)
+        """)
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set([])
+    assert unreferenced == set(['print_it'])
+
+@pytest.mark.skipif(sys.version_info < (3, 5), reason="requires python3.5")
+def test_annotations_complex():
+    # https://www.python.org/dev/peps/pep-3107/
+    src = dedent("""
+        def foo(a: 'x', b: 5 + 6, c: list, \
+            d: Iterable, e: CustomType) -> max(2, 9):
+                print(a)
+        
+        foo()
+        """)
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['Iterable', 'CustomType'])
+    assert unreferenced == set([])
+
+@pytest.mark.skipif(sys.version_info < (3, 5), reason="requires python3.5")
+def test_annotations_return_type():
+    # https://www.python.org/dev/peps/pep-3107/
+    src = dedent("""
+        def foo(a) -> CustomType:
+            print(a)
+        
+        foo()
+        """)
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['CustomType'])
+    assert unreferenced == set([])
+
+@pytest.mark.skipif(sys.version_info < (3, 5), reason="requires python3.5")
+def test_annotations_from_typing():
+    src = dedent("""
+        from typing import Dict, Tuple
+
+        Vector = List[float]
+
+        def scale(scalar: float, vector: Vector) -> Vector:
+            return [scalar * num for num in vector]
+
+        new_vector = scale(2.0, [1.0, -4.2, 5.4])
+        print(new_vector)
+        """)
+    scope = Scope.from_source(src)
+    unresolved, unreferenced = scope.find_unresolved_and_unreferenced_symbols()
+    assert unresolved == set(['List'])
+    assert unreferenced == set(['Tuple', 'Dict'])
 
 class TestSymbolCollection(object):
     def _collect(self, src, include_unreferenced=False):
