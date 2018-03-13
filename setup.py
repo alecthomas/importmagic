@@ -40,4 +40,5 @@ setup(
         'setuptools >= 0.6b1',
     ],
     cmdclass={'test': PyTest},
+    scripts=['bin/importmagic'],
 )
