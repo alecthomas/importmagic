@@ -5,7 +5,7 @@ import tokenize
 from collections import defaultdict
 try:
     from ConfigParser import ConfigParser
-except:
+except ImportError:
     from configparser import ConfigParser
 
 from importmagic.six import StringIO
