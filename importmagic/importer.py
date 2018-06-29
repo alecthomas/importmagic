@@ -101,7 +101,7 @@ class Imports(object):
         cfg_path = os.path.join(self._root_dir, PROJECT_CONFIG_FILE)
         config = ConfigParser()
         config.read(cfg_path)
-        imp_cfg = config['importmagic']
+        imp_cfg = dict(config.items('importmagic'))
 
         if imp_cfg['multiline']:
             style['multiline'] = imp_cfg['multiline']
