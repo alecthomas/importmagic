@@ -78,7 +78,11 @@ PROJECT_CONFIG_FILE = 'setup.cfg'
 
 class Imports(object):
 
-    _style = {'multiline': 'parentheses', 'max_columns': 79}
+    _style = {
+		'multiline': 'parentheses',
+		'max_columns': 79,
+		'indent_with_tabs': False,
+	}
 
     def __init__(self, index, source, root_dir=None):
         self._imports = set()
@@ -107,6 +111,8 @@ class Imports(object):
             style['multiline'] = imp_cfg['multiline']
         if imp_cfg['max_columns']:
             style['max_columns'] = int(imp_cfg['max_columns'])
+        if config.getboolean('importmagic', 'indent_with_tabs'):
+            style['indent_with_tabs'] = True
         return style
 
     def add_import(self, name, alias=None):
@@ -166,7 +172,7 @@ class Imports(object):
                             # Use a backslash
                             line_tail = ', \\\n'
                         out.write(line + imported_items + line_tail)
-                        line = '    '
+                        line = '\t' if self._style['indent_with_tabs'] else '    '
                         line_len = len(line) + len(clause) + 2
                         line_pieces = [clause]
                     else:
