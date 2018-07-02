@@ -79,10 +79,10 @@ PROJECT_CONFIG_FILE = 'setup.cfg'
 class Imports(object):
 
     _style = {
-		'multiline': 'parentheses',
-		'max_columns': 79,
-		'indent_with_tabs': False,
-	}
+        'multiline': 'parentheses',
+        'max_columns': 79,
+        'indent_with_tabs': False,
+    }
 
     def __init__(self, index, source, root_dir=None):
         self._imports = set()
