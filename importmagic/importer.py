@@ -163,14 +163,14 @@ class Imports(object):
                     if next_len > self._style['max_columns']:
                         imported_items = ', '.join(line_pieces)
                         if self._style['multiline'] == 'parentheses':
-                            line_tail = ',\n'
+                            line_tail = ',\n' if imported_items else '\n'
                             if not paren_used:
                                 line += '('
                                 paren_used = True
                             line_pieces.append('\n')
                         else:
                             # Use a backslash
-                            line_tail = ', \\\n'
+                            line_tail = ', \\\n' if imported_items else '\\\n'
                         out.write(line + imported_items + line_tail)
                         line = '\t' if self._style['indent_with_tabs'] else '    '
                         line_len = len(line) + len(clause) + 2

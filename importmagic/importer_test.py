@@ -301,7 +301,7 @@ def test_importer_wrapping_escaped_longer(index):
     Imports.set_style(multiline='backslash', max_columns=80, indent_with_tabs=False)
     src = dedent('''
         from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum
-        from waffle import stuff
+        from module_with_long_name.classes.some_prefix.another_prefix.waffle import stuff
 
         Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
         ''').strip()
@@ -309,7 +309,8 @@ def test_importer_wrapping_escaped_longer(index):
         from injector import Binder, Injector, InstanceProvider, Key, MappingKey, \\
             Module, Scope, ScopeDecorator, SequenceKey, bar, baz, cux, foo, imported, \\
             inject, ipsum, lorem, more, provides, singleton, things
-        from waffle import stuff
+        from module_with_long_name.classes.some_prefix.another_prefix.waffle import \\
+            stuff
 
 
         Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
@@ -367,7 +368,7 @@ def test_importer_wrapping_parentheses_longer(index):
     Imports.set_style(multiline='parentheses', max_columns=80, indent_with_tabs=False)
     src = dedent('''
         from injector import Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum
-        from waffle import stuff
+        from module_with_long_name.classes.some_prefix.another_prefix.waffle import stuff
 
         Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
         ''').strip()
@@ -375,7 +376,8 @@ def test_importer_wrapping_parentheses_longer(index):
         from injector import (Binder, Injector, InstanceProvider, Key, MappingKey,
             Module, Scope, ScopeDecorator, SequenceKey, bar, baz, cux, foo, imported,
             inject, ipsum, lorem, more, provides, singleton, things)
-        from waffle import stuff
+        from module_with_long_name.classes.some_prefix.another_prefix.waffle import (
+            stuff)
 
 
         Binder, Injector, InstanceProvider, Key, MappingKey, Module, Scope, ScopeDecorator, SequenceKey, inject, provides, singleton, more, things, imported, foo, bar, baz, cux, lorem, ipsum, stuff
