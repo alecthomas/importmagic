@@ -30,6 +30,13 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
     by default.  If this is wanted, *include_attributes* can be set to True.
     """
     def _format(node, level=0):
+        """
+        Format a python representation of a node.
+
+        Args:
+            node: (todo): write your description
+            level: (int): write your description
+        """
         if isinstance(node, AST):
             fields = [(a, _format(b, level + 1)) for a, b in iter_fields(node)]
             if include_attributes and node._attributes:
@@ -59,6 +66,11 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
 
 
 def get_cache_dir():
+    """
+    Return the cache directory.
+
+    Args:
+    """
     if platform.startswith('linux'):
         cache_dir = '~/.cache/importmagic/'
     elif platform == 'darwin':

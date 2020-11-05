@@ -3727,9 +3727,24 @@ import zlib
 
 class DictImporter(object):
     def __init__(self, sources):
+        """
+        Initialize sources.
+
+        Args:
+            self: (todo): write your description
+            sources: (list): write your description
+        """
         self.sources = sources
 
     def find_module(self, fullname, path=None):
+        """
+        Find the module by fullname.
+
+        Args:
+            self: (todo): write your description
+            fullname: (str): write your description
+            path: (list): write your description
+        """
         if fullname == "argparse" and sys.version_info >= (2,7):
             # we were generated with <python2.7 (which pulls in argparse)
             # but we are running now on a stdlib which has it, so use that.
@@ -3741,6 +3756,13 @@ class DictImporter(object):
         return None
 
     def load_module(self, fullname):
+        """
+        Load a python module.
+
+        Args:
+            self: (str): write your description
+            fullname: (str): write your description
+        """
         # print "load_module:",  fullname
         from types import ModuleType
         try:
@@ -3761,6 +3783,13 @@ class DictImporter(object):
         return sys.modules[fullname]
 
     def get_source(self, name):
+        """
+        Get a source.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         res = self.sources.get(name)
         if res is None:
             res = self.sources.get(name + '.__init__')

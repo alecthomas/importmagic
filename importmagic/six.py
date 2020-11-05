@@ -54,6 +54,12 @@ else:
         # It's possible to have sizeof(long) != sizeof(Py_ssize_t).
         class X(object):
             def __len__(self):
+                """
+                Returns the number of bytes in this list.
+
+                Args:
+                    self: (todo): write your description
+                """
                 return 1 << 31
         try:
             len(X())
@@ -80,9 +86,24 @@ def _import_module(name):
 class _LazyDescr(object):
 
     def __init__(self, name):
+        """
+        Sets the name.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         self.name = name
 
     def __get__(self, obj, tp):
+        """
+        Return the value of an object.
+
+        Args:
+            self: (todo): write your description
+            obj: (todo): write your description
+            tp: (int): write your description
+        """
         result = self._resolve()
         setattr(obj, self.name, result) # Invokes __set__.
         # This is a bit ugly, but it avoids running this again.
@@ -93,6 +114,15 @@ class _LazyDescr(object):
 class MovedModule(_LazyDescr):
 
     def __init__(self, name, old, new=None):
+        """
+        Initialize a new module.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            old: (list): write your description
+            new: (list): write your description
+        """
         super(MovedModule, self).__init__(name)
         if PY3:
             if new is None:
@@ -102,9 +132,22 @@ class MovedModule(_LazyDescr):
             self.mod = old
 
     def _resolve(self):
+        """
+        Resolve the module.
+
+        Args:
+            self: (todo): write your description
+        """
         return _import_module(self.mod)
 
     def __getattr__(self, attr):
+        """
+        Get the value of an attribute.
+
+        Args:
+            self: (todo): write your description
+            attr: (str): write your description
+        """
         # Hack around the Django autoreloader. The reloader tries to get
         # __file__ or __name__ of every module in sys.modules. This doesn't work
         # well if this MovedModule is for an module that is unavailable on this
@@ -124,10 +167,23 @@ class MovedModule(_LazyDescr):
 class _LazyModule(types.ModuleType):
 
     def __init__(self, name):
+        """
+        Initialize a class.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         super(_LazyModule, self).__init__(name)
         self.__doc__ = self.__class__.__doc__
 
     def __dir__(self):
+        """
+        Returns a list of all the attributes of the given object.
+
+        Args:
+            self: (todo): write your description
+        """
         attrs = ["__doc__", "__name__"]
         attrs += [attr.name for attr in self._moved_attributes]
         return attrs
@@ -139,6 +195,17 @@ class _LazyModule(types.ModuleType):
 class MovedAttribute(_LazyDescr):
 
     def __init__(self, name, old_mod, new_mod, old_attr=None, new_attr=None):
+        """
+        Add a new attribute.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            old_mod: (str): write your description
+            new_mod: (str): write your description
+            old_attr: (todo): write your description
+            new_attr: (todo): write your description
+        """
         super(MovedAttribute, self).__init__(name)
         if PY3:
             if new_mod is None:
@@ -157,6 +224,12 @@ class MovedAttribute(_LazyDescr):
             self.attr = old_attr
 
     def _resolve(self):
+        """
+        Resolve a module.
+
+        Args:
+            self: (todo): write your description
+        """
         module = _import_module(self.mod)
         return getattr(module, self.attr)
 
@@ -379,6 +452,12 @@ class Module_six_moves_urllib(types.ModuleType):
     robotparser = sys.modules[__name__ + ".moves.urllib_robotparser"]
 
     def __dir__(self):
+        """
+        A list of - directories directories.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['parse', 'error', 'request', 'response', 'robotparser']
 
 
@@ -433,6 +512,12 @@ try:
     advance_iterator = next
 except NameError:
     def advance_iterator(it):
+        """
+        Advance an iterator.
+
+        Args:
+            it: (todo): write your description
+        """
         return it.next()
 next = advance_iterator
 
@@ -441,11 +526,23 @@ try:
     callable = callable
 except NameError:
     def callable(obj):
+        """
+        Return true if obj is a callable.
+
+        Args:
+            obj: (todo): write your description
+        """
         return any("__call__" in klass.__dict__ for klass in type(obj).__mro__)
 
 
 if PY3:
     def get_unbound_function(unbound):
+        """
+        Get unbound unbound function.
+
+        Args:
+            unbound: (str): write your description
+        """
         return unbound
 
     create_bound_method = types.MethodType
@@ -453,14 +550,33 @@ if PY3:
     Iterator = object
 else:
     def get_unbound_function(unbound):
+        """
+        Returns the unbound unbound function.
+
+        Args:
+            unbound: (str): write your description
+        """
         return unbound.im_func
 
     def create_bound_method(func, obj):
+        """
+        Create a bound bound method for the given object.
+
+        Args:
+            func: (todo): write your description
+            obj: (todo): write your description
+        """
         return types.MethodType(func, obj, obj.__class__)
 
     class Iterator(object):
 
         def next(self):
+            """
+            Returns the next type.
+
+            Args:
+                self: (todo): write your description
+            """
             return type(self).__next__(self)
 
     callable = callable
@@ -495,12 +611,30 @@ def iterlists(d, **kw):
 
 if PY3:
     def b(s):
+        """
+        : param s : class : bytes.
+
+        Args:
+            s: (todo): write your description
+        """
         return s.encode("latin-1")
     def u(s):
+        """
+        Convert a list of the string.
+
+        Args:
+            s: (int): write your description
+        """
         return s
     unichr = chr
     if sys.version_info[1] <= 1:
         def int2byte(i):
+            """
+            Convert integer from byte string.
+
+            Args:
+                i: (todo): write your description
+            """
             return bytes((i,))
     else:
         # This is about 2x faster than the implementation above on 3.2+
@@ -513,17 +647,48 @@ if PY3:
     BytesIO = io.BytesIO
 else:
     def b(s):
+        """
+        Returns a b
+
+        Args:
+            s: (int): write your description
+        """
         return s
     # Workaround for standalone backslash
     def u(s):
+        """
+        Return a unicode.
+
+        Args:
+            s: (str): write your description
+        """
         return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
     unichr = unichr
     int2byte = chr
     def byte2int(bs):
+        """
+        Convert a bs
+
+        Args:
+            bs: (todo): write your description
+        """
         return ord(bs[0])
     def indexbytes(buf, i):
+        """
+        Return the index of a buffer i.
+
+        Args:
+            buf: (todo): write your description
+            i: (todo): write your description
+        """
         return ord(buf[i])
     def iterbytes(buf):
+        """
+        Iterate over byte string into a byte string.
+
+        Args:
+            buf: (todo): write your description
+        """
         return (ord(byte) for byte in buf)
     import StringIO
     StringIO = BytesIO = StringIO.StringIO
@@ -536,6 +701,14 @@ if PY3:
 
 
     def reraise(tp, value, tb=None):
+        """
+        Reraise a traceback.
+
+        Args:
+            tp: (todo): write your description
+            value: (todo): write your description
+            tb: (todo): write your description
+        """
         if value.__traceback__ is not tb:
             raise value.with_traceback(tb)
         raise value
@@ -567,6 +740,12 @@ if print_ is None:
         if fp is None:
             return
         def write(data):
+            """
+            Write data to a string.
+
+            Args:
+                data: (todo): write your description
+            """
             if not isinstance(data, basestring):
                 data = str(data)
             # If the file has an encoding, encode unicode with it.
@@ -624,6 +803,12 @@ def with_metaclass(meta, *bases):
 def add_metaclass(metaclass):
     """Class decorator for creating a class with a metaclass."""
     def wrapper(cls):
+        """
+        Creates a metaclass.
+
+        Args:
+            cls: (todo): write your description
+        """
         orig_vars = cls.__dict__.copy()
         orig_vars.pop('__dict__', None)
         orig_vars.pop('__weakref__', None)

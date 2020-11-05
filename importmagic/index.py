@@ -47,6 +47,13 @@ logger = logging.getLogger(__name__)
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
+        """
+        Recursively serialize.
+
+        Args:
+            self: (todo): write your description
+            o: (todo): write your description
+        """
         if isinstance(o, SymbolIndex):
             d = o._tree.copy()
             d.update(('.' + name, getattr(o, name))
@@ -75,6 +82,18 @@ class SymbolIndex(object):
 
     def __init__(self, name=None, parent=None, score=1.0, location='L',
                  blacklist_re=None, locations=None):
+        """
+        Initialize a blacklist.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            parent: (todo): write your description
+            score: (todo): write your description
+            location: (str): write your description
+            blacklist_re: (str): write your description
+            locations: (str): write your description
+        """
         self._name = name
         self._tree = {}
         self._exports = {}
@@ -100,13 +119,34 @@ class SymbolIndex(object):
 
     @property
     def lib_locations(self):
+        """
+        A list of the locations of this node.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._parent:
             return self._parent.lib_locations
         return self._lib_locations
 
     @classmethod
     def deserialize(self, file):
+        """
+        Deserializes tree from a json file.
+
+        Args:
+            self: (todo): write your description
+            file: (str): write your description
+        """
         def load(tree, data, parent_location):
+            """
+            Load data from tree.
+
+            Args:
+                tree: (todo): write your description
+                data: (dict): write your description
+                parent_location: (str): write your description
+            """
             for key, value in data.items():
                 if isinstance(value, dict):
                     score = value.pop('.score', 1.0)
@@ -125,6 +165,14 @@ class SymbolIndex(object):
         return tree
 
     def index_source(self, filename, source):
+        """
+        Parse a source file. ast.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            source: (str): write your description
+        """
         try:
             st = parse_ast(source, filename)
         except Exception as e:
@@ -135,6 +183,14 @@ class SymbolIndex(object):
         return True
 
     def index_file(self, module, filename):
+        """
+        Enter a file.
+
+        Args:
+            self: (todo): write your description
+            module: (str): write your description
+            filename: (str): write your description
+        """
         if self._blacklist_re.search(filename):
             return
         logger.debug('parsing Python module %s for indexing', filename)
@@ -160,12 +216,28 @@ class SymbolIndex(object):
             self._index_package(root, location)
 
     def _index_package(self, root, location):
+        """
+        Create a package.
+
+        Args:
+            self: (todo): write your description
+            root: (str): write your description
+            location: (str): write your description
+        """
         basename = os.path.basename(root)
         with self.enter(basename, location=location) as subtree:
             for filename in os.listdir(root):
                 subtree.index_path(os.path.join(root, filename))
 
     def _index_module(self, root, location):
+        """
+        Index a module at the given location.
+
+        Args:
+            self: (todo): write your description
+            root: (str): write your description
+            location: (str): write your description
+        """
         basename, ext = os.path.splitext(os.path.basename(root))
         if basename == '__init__':
             basename = None
@@ -179,6 +251,14 @@ class SymbolIndex(object):
             self.index_builtin(import_path, location=location)
 
     def index_builtin(self, name, location):
+        """
+        Enter an builtin index.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            location: (str): write your description
+        """
         basename = name.rsplit('.', 1)[-1]
         if basename.startswith('_'):
             return
@@ -195,6 +275,13 @@ class SymbolIndex(object):
                     subtree.add(key, 1.1)
 
     def build_index(self, paths):
+        """
+        Build the index for the given paths.
+
+        Args:
+            self: (todo): write your description
+            paths: (str): write your description
+        """
         for builtin in BUILTIN_MODULES:
             self.index_builtin(builtin, location='S')
         for path in paths:
@@ -243,6 +330,13 @@ class SymbolIndex(object):
         # basename              os.path basename   ->   from os.path import basename
         # path.basename         os.path basename   ->   from os import path
         def fixup(module, variable):
+            """
+            Fixmeives a prefix.
+
+            Args:
+                module: (str): write your description
+                variable: (array): write your description
+            """
             prefix = module.split('.')
             if variable is not None:
                 prefix.append(variable)
@@ -257,6 +351,13 @@ class SymbolIndex(object):
             return module, variable
 
         def score_walk(scope, scale):
+            """
+            \ implements of the score.
+
+            Args:
+                scope: (str): write your description
+                scale: (float): write your description
+            """
             sub_path, score = self._score_key(scope, full_key)
             if score > 0.1:
                 try:
@@ -280,6 +381,12 @@ class SymbolIndex(object):
         return scores
 
     def depth(self):
+        """
+        Return the depth of this node.
+
+        Args:
+            self: (todo): write your description
+        """
         depth = 0
         node = self
         while node._parent:
@@ -288,6 +395,12 @@ class SymbolIndex(object):
         return depth
 
     def path(self):
+        """
+        Return the path of this node.
+
+        Args:
+            self: (todo): write your description
+        """
         path = []
         node = self
         while node and node._name:
@@ -296,6 +409,14 @@ class SymbolIndex(object):
         return '.'.join(reversed(path))
 
     def add_explicit_export(self, name, score):
+        """
+        Add an export score.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            score: (todo): write your description
+        """
         self._exports[name] = score
         self.add(name, score)
 
@@ -326,12 +447,29 @@ class SymbolIndex(object):
         return location
 
     def add(self, name, score):
+        """
+        Add a new score.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            score: (int): write your description
+        """
         current_score = self._tree.get(name, 0.0)
         if isinstance(current_score, float) and score > current_score:
             self._tree[name] = score
 
     @contextmanager
     def enter(self, name, location='L', score=1.0):
+        """
+        Enter a context.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+            location: (str): write your description
+            score: (todo): write your description
+        """
         if name is None:
             tree = self
         else:
@@ -349,18 +487,51 @@ class SymbolIndex(object):
                 del tree._tree[key]
 
     def serialize(self, fd=None):
+        """
+        Serialize fp as a json.
+
+        Args:
+            self: (todo): write your description
+            fd: (todo): write your description
+        """
         if fd is None:
             return json.dumps(self, cls=JSONEncoder)
         return json.dump(self, fd, cls=JSONEncoder)
 
     def boost(self):
+        """
+        Returns the maximum number of days.
+
+        Args:
+            self: (todo): write your description
+        """
         return LOCATION_BOOSTS.get(self.location, 1.0)
 
     def __repr__(self):
+        """
+        Return a representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return '<%s:%r %r>' % (self.location, self.score, self._tree)
 
     def _merge_aliases(self):
+        """
+        Merge aliases. aliases.
+
+        Args:
+            self: (todo): write your description
+        """
         def create(node, alias, score):
+            """
+            Create a new index.
+
+            Args:
+                node: (str): write your description
+                alias: (int): write your description
+                score: (todo): write your description
+            """
             if not alias:
                 return
             name = alias.pop(0)
@@ -373,6 +544,14 @@ class SymbolIndex(object):
             create(self, package.split('.'), score)
 
     def _score_key(self, scope, key):
+        """
+        Get the score for a key.
+
+        Args:
+            self: (todo): write your description
+            scope: (str): write your description
+            key: (str): write your description
+        """
         if not key:
             return [], 0.0
         key_score = value = scope._tree.get(key[0], None)
@@ -385,6 +564,13 @@ class SymbolIndex(object):
             return [key[0]] + path, (score + value.score) * scope.boost()
 
     def _determine_location_for(self, path):
+        """
+        Determine the location of the given path.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         parts = path.split(os.path.sep)
         # Heuristic classifier
         if 'site-packages' in parts:
@@ -400,29 +586,71 @@ class SymbolIndex(object):
 
 class SymbolVisitor(ast.NodeVisitor):
     def __init__(self, tree):
+        """
+        Initialize the tree
+
+        Args:
+            self: (todo): write your description
+            tree: (dict): write your description
+        """
         self._tree = tree
 
     def visit_ImportFrom(self, node):
+        """
+        Visit import import statements.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         for name in node.names:
             if name.name == '*' or name.name.startswith('_'):
                 continue
             self._tree.add(name.name, 0.25)
 
     def visit_Import(self, node):
+        """
+        Visit import import node.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         for name in node.names:
             if name.name.startswith('_'):
                 continue
             self._tree.add(name.name, 0.25)
 
     def visit_ClassDef(self, node):
+        """
+        Visit a class.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         if not node.name.startswith('_'):
             self._tree.add(node.name, 1.1)
 
     def visit_FunctionDef(self, node):
+        """
+        Visitor for function name.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         if not node.name.startswith('_'):
             self._tree.add(node.name, 1.1)
 
     def visit_Assign(self, node):
+        """
+        Visit statement.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         # TODO: Handle __all__
         is_name = lambda n: isinstance(n, ast.Name)
         for name in filter(is_name, node.targets):
@@ -434,6 +662,13 @@ class SymbolVisitor(ast.NodeVisitor):
                 self._tree.add(name.id, 1.1)
 
     def visit_If(self, node):
+        """
+        Visitor for getting a node.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         # NOTE: In lieu of actually parsing if/else blocks at the top-level,
         # we'll just ignore them.
         pass

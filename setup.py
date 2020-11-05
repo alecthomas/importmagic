@@ -11,12 +11,30 @@ class PyTest(Command):
     user_options = []
 
     def initialize_options(self):
+        """
+        Initializes the options.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
     def finalize_options(self):
+        """
+        Finalize options. options. options.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
     def run(self):
+        """
+        Run the executable.
+
+        Args:
+            self: (todo): write your description
+        """
         import sys
         import subprocess
         errno = subprocess.call([sys.executable, 'runtests.py'])
