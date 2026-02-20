@@ -428,8 +428,8 @@ class SymbolVisitor(ast.NodeVisitor):
         for name in filter(is_name, node.targets):
             if name.id == '__all__' and isinstance(node.value, ast.List):
                 for subnode in node.value.elts:
-                    if isinstance(subnode, ast.Str):
-                        self._tree.add_explicit_export(subnode.s, 1.2)
+                    if isinstance(subnode, ast.Constant):
+                        self._tree.add_explicit_export(subnode.value, 1.2)
             elif not name.id.startswith('_'):
                 self._tree.add(name.id, 1.1)
 
