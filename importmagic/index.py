@@ -6,20 +6,31 @@ import logging
 import os
 import re
 import sys
+import sysconfig
 from contextlib import contextmanager
-from distutils import sysconfig
 
 from importmagic.util import get_cache_dir, parse_ast
 
 
-LIB_LOCATIONS = sorted(set((
-    (sysconfig.get_python_lib(standard_lib=True), 'S'),
-    (sysconfig.get_python_lib(plat_specific=True), '3'),
-    (sysconfig.get_python_lib(standard_lib=True, prefix=sys.prefix), 'S'),
-    (sysconfig.get_python_lib(plat_specific=True, prefix=sys.prefix), '3'),
-    (sysconfig.get_python_lib(standard_lib=True, prefix='/usr/local'), 'S'),
-    (sysconfig.get_python_lib(plat_specific=True, prefix='/usr/local'), '3'),
-)), key=lambda l: -len(l[0]))
+def _get_lib_locations():
+    paths = sysconfig.get_paths()
+    locations = {
+        (paths['stdlib'], 'S'),
+        (paths['platlib'], '3'),
+        (paths['purelib'], '3'),
+    }
+    for prefix in (sys.prefix, '/usr/local'):
+        try:
+            p = sysconfig.get_paths(vars={'base': prefix, 'platbase': prefix})
+            locations.add((p['stdlib'], 'S'))
+            locations.add((p['platlib'], '3'))
+            locations.add((p['purelib'], '3'))
+        except KeyError:
+            pass
+    return sorted(locations, key=lambda l: -len(l[0]))
+
+
+LIB_LOCATIONS = _get_lib_locations()
 
 # Regex matching modules that we never attempt to index.
 DEFAULT_BLACKLIST_RE = re.compile(r'\btest[s]?|test[s]?\b', re.I)

@@ -1,0 +1,15 @@
+name: Release
+on:
+  push:
+    tags: ["*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cashapp/activate-hermit@v1
+      - run: uv build
+      - run: uv publish --trusted-publishing always
